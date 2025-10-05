@@ -62,6 +62,18 @@ const routes = [
       { path: "", redirect: "/lawyer/dashboard" },
     ],
   },
+  {
+    path: "/change-password",
+    component: DashboardLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: "",
+        name: "ChangePassword",
+        component: () => import("../pages/ChangePassword.vue"),
+      },
+    ],
+  },
 ];
 
 const router = createRouter({

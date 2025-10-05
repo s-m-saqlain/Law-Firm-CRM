@@ -18,6 +18,7 @@ export const useAuthStore = defineStore("auth", {
           email,
           password,
         });
+
         if (response.data.status) {
           this.accessToken = response.data.access_token;
           this.refreshToken = response.data.refresh_token;
@@ -27,12 +28,16 @@ export const useAuthStore = defineStore("auth", {
           localStorage.setItem("refresh_token", this.refreshToken);
           localStorage.setItem("user", JSON.stringify(this.user));
 
-          return true;
+          return response.data;
+        } else {
+          return response.data;
         }
-        return false;
       } catch (error) {
-        console.error("Login error:", error);
-        return false;
+        return {
+          status: false,
+          message:
+            error.response?.data?.message || "Unable to connect to the server.",
+        };
       }
     },
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gray-100">
+  <div class="flex h-screen bg-white">
     <aside class="w-64 bg-gray-900 text-white flex flex-col justify-between">
       <div>
         <div class="flex items-center gap-2 p-4 border-b border-gray-700">
@@ -28,39 +28,63 @@
         </nav>
       </div>
 
-      <div
-        class="border-t border-gray-700 p-4 flex items-center justify-between"
-      >
-        <div class="flex items-center gap-2">
-          <img
-            v-if="authStore.user?.profile_image"
-            :src="authStore.user.profile_image"
-            alt="Profile"
-            class="w-8 h-8 rounded-full object-cover"
-          />
-          <div
-            v-else
-            class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-xs"
-          >
-            CN
+      <div class="border-t border-gray-700 p-4 relative">
+        <div
+          class="flex items-center justify-between cursor-pointer"
+          @click="toggleDropdown"
+        >
+          <div class="flex items-center gap-2">
+            <img
+              v-if="authStore.user?.profile_image"
+              :src="authStore.user.profile_image"
+              alt="Profile"
+              class="w-8 h-8 rounded-full object-cover"
+            />
+            <div
+              v-else
+              class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-xs"
+            >
+              CN
+            </div>
+            <div>
+              <p class="text-xs font-medium truncate w-28">
+                {{ authStore.user?.first_name }}
+                {{ authStore.user?.middle_name }}
+                {{ authStore.user?.last_name }}
+              </p>
+              <p class="text-[11px] text-gray-400 truncate w-28">
+                {{ authStore.user?.email }}
+              </p>
+            </div>
           </div>
 
-          <div>
-            <p class="text-xs font-medium">
-              {{ authStore.user?.first_name }}
-              {{ authStore.user?.middle_name }}
-              {{ authStore.user?.last_name }}
-            </p>
-            <p class="text-[11px] text-gray-400">{{ authStore.user?.email }}</p>
-          </div>
+          <button
+            class="text-gray-400 hover:text-white transition-transform"
+            :class="{ 'rotate-180': dropdownOpen }"
+          >
+            ▼
+          </button>
         </div>
 
-        <button
-          @click="logout"
-          class="text-gray-400 hover:text-red-400 text-sm"
-        >
-          ⎋
-        </button>
+        <transition name="fade">
+          <div
+            v-if="dropdownOpen"
+            class="absolute bottom-16 left-0 w-full bg-gray-800 border border-gray-700 rounded-md shadow-lg overflow-hidden z-10"
+          >
+            <button
+              @click="goToChangePassword"
+              class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-700"
+            >
+              Change Password
+            </button>
+            <button
+              @click="logout"
+              class="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700"
+            >
+              Logout
+            </button>
+          </div>
+        </transition>
       </div>
     </aside>
 
@@ -91,7 +115,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute, RouterLink, RouterView } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import {
@@ -107,6 +131,11 @@ const route = useRoute();
 const authStore = useAuthStore();
 
 const basePath = computed(() => `/${route.path.split("/")[1]}`);
+const dropdownOpen = ref(false);
+
+function toggleDropdown() {
+  dropdownOpen.value = !dropdownOpen.value;
+}
 
 const navItems = {
   "Super Admin": [
@@ -142,8 +171,14 @@ function isActive(path) {
 }
 
 function logout() {
+  dropdownOpen.value = false;
   authStore.logout();
   router.push("/login");
+}
+
+function goToChangePassword() {
+  dropdownOpen.value = false;
+  router.push("/change-password");
 }
 
 onMounted(async () => {
@@ -151,3 +186,15 @@ onMounted(async () => {
   await authStore.getProfile();
 });
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(5px);
+}
+</style>

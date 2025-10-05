@@ -60,10 +60,11 @@
 
           <button
             type="submit"
-            class="inline-flex items-center justify-center gap-2 border border-slate-300 rounded-md px-4 py-1 text-slate-700 bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors"
+            :disabled="loading"
+            class="inline-flex items-center justify-center gap-2 border border-slate-300 rounded-md px-4 py-1 text-slate-700 bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors disabled:opacity-60"
           >
             <LogIn class="w-4 h-4" />
-            <span>Sign In</span>
+            <span>{{ loading ? "Signing In..." : "Sign In" }}</span>
           </button>
         </form>
       </div>
@@ -76,6 +77,7 @@ import { ref } from "vue";
 import { Eye, EyeOff, LogIn } from "lucide-vue-next";
 import { useAuthStore } from "../../stores/auth";
 import { useRouter } from "vue-router";
+import Swal from "sweetalert2";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -83,22 +85,60 @@ const router = useRouter();
 const email = ref("");
 const password = ref("");
 const showPassword = ref(false);
+const loading = ref(false);
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  },
+});
 
 async function onSubmit() {
-  const success = await authStore.login(email.value, password.value);
-  if (success) {
-    const role = authStore.userRole;
-    if (role === "Lawyer") {
-      router.push("/lawyer/dashboard");
-    } else if (role === "Law Firm") {
-      router.push("/firm/dashboard");
-    } else if (role === "Super Admin") {
-      router.push("/super-admin/dashboard");
+  loading.value = true;
+  try {
+    const response = await authStore.login(email.value, password.value);
+    if (response?.status) {
+      Toast.fire({
+        icon: "success",
+        title: "Signed in successfully",
+      });
+
+      const role = authStore.userRole;
+      if (role === "Lawyer") {
+        router.push("/lawyer/dashboard");
+      } else if (role === "Law Firm") {
+        router.push("/firm/dashboard");
+      } else if (role === "Super Admin") {
+        router.push("/super-admin/dashboard");
+      } else {
+        Toast.fire({
+          icon: "warning",
+          title: "Unknown user role",
+        });
+      }
     } else {
-      alert("Unknown User");
+      Toast.fire({
+        icon: "error",
+        title:
+          response?.message ||
+          "Login failed! Please check your email or password.",
+      });
     }
-  } else {
-    alert("Please check your credentials.");
+  } catch (error) {
+    const apiError =
+      response?.data?.message || "An unexpected error occurred.";
+    Toast.fire({
+      icon: "error",
+      title: apiError,
+    });
+  } finally {
+    loading.value = false;
   }
 }
 </script>
