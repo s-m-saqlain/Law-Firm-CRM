@@ -33,6 +33,10 @@ const routes = [
       { path: "documents", component: SuperAdminDocuments },
       { path: "tasks", component: SuperAdminTasks },
       { path: "cover-letter", component: SuperAdminCoverLetter },
+      {
+        path: "change-password",
+        component: () => import("../pages/ChangePassword.vue"),
+      },
       { path: "", redirect: "/super-admin/dashboard" },
     ],
   },
@@ -46,6 +50,10 @@ const routes = [
       { path: "documents", component: FirmDocuments },
       { path: "tasks", component: FirmTasks },
       { path: "cover-letter", component: FirmCoverLetter },
+      {
+        path: "change-password",
+        component: () => import("../pages/ChangePassword.vue"),
+      },
       { path: "", redirect: "/firm/dashboard" },
     ],
   },
@@ -59,6 +67,10 @@ const routes = [
       { path: "documents", component: LawyerDocuments },
       { path: "tasks", component: LawyerTasks },
       { path: "cover-letter", component: LawyerCoverLetter },
+      {
+        path: "change-password",
+        component: () => import("../pages/ChangePassword.vue"),
+      },
       { path: "", redirect: "/lawyer/dashboard" },
     ],
   },

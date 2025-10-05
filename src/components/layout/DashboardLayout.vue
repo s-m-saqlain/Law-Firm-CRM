@@ -178,8 +178,18 @@ function logout() {
 
 function goToChangePassword() {
   dropdownOpen.value = false;
-  router.push("/change-password");
+  const role = authStore.userRole;
+  if (role === "Super Admin") {
+    router.push("/super-admin/change-password");
+  } else if (role === "Law Firm") {
+    router.push("/firm/change-password");
+  } else if (role === "Lawyer") {
+    router.push("/lawyer/change-password");
+  } else {
+    router.push("/login");
+  }
 }
+
 
 onMounted(async () => {
   authStore.initializeAuth();
