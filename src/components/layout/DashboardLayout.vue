@@ -72,6 +72,12 @@
             class="absolute bottom-16 left-0 w-full bg-gray-800 border border-gray-700 rounded-md shadow-lg overflow-hidden z-10"
           >
             <button
+              @click="goToUpdateProfile"
+              class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-700"
+            >
+              Update Profile
+            </button>
+            <button
               @click="goToChangePassword"
               class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-700"
             >
@@ -190,6 +196,19 @@ function goToChangePassword() {
   }
 }
 
+function goToUpdateProfile() {
+  dropdownOpen.value = false;
+  const role = authStore.userRole;
+  if (role === "Super Admin") {
+    router.push("/super-admin/update-profile");
+  } else if (role === "Law Firm") {
+    router.push("/firm/update-profile");
+  } else if (role === "Lawyer") {
+    router.push("/lawyer/update-profile");
+  } else {
+    router.push("/login");
+  }
+}
 
 onMounted(async () => {
   authStore.initializeAuth();

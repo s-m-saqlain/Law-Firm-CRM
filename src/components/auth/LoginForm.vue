@@ -49,7 +49,7 @@
             </div>
           </div>
 
-          <div class="flex justify-end">
+          <div class="flex justify-end" @click="gotToForgotPassword">
             <a
               href="#"
               class="text-sm text-slate-600 hover:text-slate-800 underline-offset-4 hover:underline"
@@ -131,8 +131,7 @@ async function onSubmit() {
       });
     }
   } catch (error) {
-    const apiError =
-      response?.data?.message || "An unexpected error occurred.";
+    const apiError = response?.data?.message || "An unexpected error occurred.";
     Toast.fire({
       icon: "error",
       title: apiError,
@@ -140,5 +139,9 @@ async function onSubmit() {
   } finally {
     loading.value = false;
   }
+}
+
+function gotToForgotPassword() {
+  router.push("/forgot-password");
 }
 </script>

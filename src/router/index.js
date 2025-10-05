@@ -20,9 +20,16 @@ import LawyerDocuments from "../pages/lawyer/Documents.vue";
 import LawyerTasks from "../pages/lawyer/Tasks.vue";
 import LawyerCoverLetter from "../pages/lawyer/CoverLetter.vue";
 
+import ForgotPassword from "../pages/ForgotPassword.vue";
+
 const routes = [
+  // login
+
   { path: "/", redirect: "/login" },
   { path: "/login", name: "Login", component: Login },
+
+  // Super Admin
+
   {
     path: "/super-admin",
     component: DashboardLayout,
@@ -37,9 +44,16 @@ const routes = [
         path: "change-password",
         component: () => import("../pages/ChangePassword.vue"),
       },
+      {
+        path: "update-profile",
+        component: () => import("../pages/UpdateProfile.vue"),
+      },
       { path: "", redirect: "/super-admin/dashboard" },
     ],
   },
+
+  // Firm
+
   {
     path: "/firm",
     component: DashboardLayout,
@@ -54,9 +68,16 @@ const routes = [
         path: "change-password",
         component: () => import("../pages/ChangePassword.vue"),
       },
+      {
+        path: "update-profile",
+        component: () => import("../pages/UpdateProfile.vue"),
+      },
       { path: "", redirect: "/firm/dashboard" },
     ],
   },
+
+  // lawyer
+
   {
     path: "/lawyer",
     component: DashboardLayout,
@@ -71,9 +92,16 @@ const routes = [
         path: "change-password",
         component: () => import("../pages/ChangePassword.vue"),
       },
+      {
+        path: "update-profile",
+        component: () => import("../pages/UpdateProfile.vue"),
+      },
       { path: "", redirect: "/lawyer/dashboard" },
     ],
   },
+
+  // change password
+
   {
     path: "/change-password",
     component: DashboardLayout,
@@ -85,6 +113,29 @@ const routes = [
         component: () => import("../pages/ChangePassword.vue"),
       },
     ],
+  },
+
+  // update profile
+
+  {
+    path: "/update-profile",
+    component: DashboardLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: "",
+        name: "UpdateProfile",
+        component: () => import("../pages/UpdateProfile.vue"),
+      },
+    ],
+  },
+
+  // forgot password
+
+  {
+    path: "/forgot-password",
+    name: "ForgotPassword",
+    component: ForgotPassword,
   },
 ];
 
