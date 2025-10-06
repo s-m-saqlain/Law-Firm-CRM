@@ -8,7 +8,7 @@
       <input
         v-model="search"
         type="text"
-        placeholder="Search....."
+        placeholder="Search..."
         class="border rounded-md px-3 py-2 w-64 focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <div class="flex gap-2">
@@ -120,7 +120,6 @@
       </div>
     </div>
 
-    <!-- Add Lawyer Modal -->
     <AddLawyerModal
       :isOpen="isModalOpen"
       @close="isModalOpen = false"

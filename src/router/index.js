@@ -16,6 +16,7 @@ import FirmMatters from "../pages/firm/FirmMatters.vue";
 import FirmTasks from "../pages/firm/FirmTasks.vue";
 import FirmBills from "../pages/firm/FirmBills.vue";
 import FirmClients from "../pages/firm/FirmClients.vue";
+import AddMatter from "../pages/firm/AddMatter.vue";
 
 import LawyerDashboard from "../pages/lawyer/Dashboard.vue";
 import LawyerMatters from "../pages/lawyer/Matters.vue";
@@ -70,6 +71,8 @@ const routes = [
       { path: "tasks", component: FirmTasks },
       { path: "bills", component: FirmBills },
       { path: "clients", component: FirmClients },
+      { path: "add-matter", component: AddMatter },
+
       {
         path: "change-password",
         component: () => import("../pages/ChangePassword.vue"),

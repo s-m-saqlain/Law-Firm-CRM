@@ -172,12 +172,15 @@ import { ref, onMounted } from "vue";
 import { Plus, Search } from "lucide-vue-next";
 import Swal from "sweetalert2";
 import api from "../../services/auth.js";
+import { useRouter } from "vue-router";
 
 const tabs = ["All", "Open", "Pending", "Closed"];
 const selectedTab = ref("All");
 const query = ref("");
 const loading = ref(false);
 const matters = ref([]);
+
+const router = useRouter();
 
 const fetchMatters = async () => {
   loading.value = true;
@@ -207,6 +210,6 @@ onMounted(() => {
 });
 
 function onAddMatter() {
-  Swal.fire("Info", "Add Matter functionality coming soon!", "info");
+  router.push("/firm/add-matter");
 }
 </script>

@@ -3,7 +3,9 @@
     v-if="isOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
   >
-    <div class="bg-white rounded-lg p-6 w-full max-w-md relative">
+    <div
+      class="bg-white rounded-lg px-6 pt-6 w-full max-w-md relative max-h-[80vh] overflow-y-auto"
+    >
       <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
         <span>➕</span> Add New Lawyer
       </h2>
@@ -100,21 +102,22 @@
             {{ errors.experience_years }}
           </p>
         </div>
-
-        <div class="flex justify-end gap-2 mt-6">
-          <button
-            type="button"
-            @click="closeModal"
-            class="border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-          >
-            Save
-          </button>
+        <div class="sticky bottom-0 bg-white -mx-6 px-6 border-t">
+          <div class="flex justify-end gap-2 mt-2">
+            <button
+              type="button"
+              @click="closeModal"
+              class="border border-gray-300 rounded-md px-4 py-2 mb-2 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 mb-2 rounded-md"
+            >
+              Save
+            </button>
+          </div>
         </div>
       </form>
 
@@ -225,9 +228,14 @@ const handleSubmit = async () => {
       closeModal();
     } else {
       Swal.fire("Error", res.data?.message || "Failed to add lawyer.", "error");
+      console.log(res);
     }
   } catch (error) {
-    Swal.fire("Error", "Failed to add lawyer.", "error");
+    Swal.fire(
+      "Error",
+      error?.response?.data?.message || "Failed to add lawyer.",
+      "error"
+    );
   }
 };
 
