@@ -127,7 +127,7 @@
                     @click="toggleAreaDropdown"
                     class="flex items-center justify-between h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-800 cursor-pointer"
                   >
-                    <span>{{ selectedArea || "Select area" }}</span>
+                    <span>{{ selectedArea?.title || "Select area" }}</span>
                     <svg
                       class="h-4 w-4 text-zinc-600"
                       xmlns="http://www.w3.org/2000/svg"
@@ -151,15 +151,15 @@
                     <ul class="max-h-56 overflow-y-auto">
                       <li
                         v-for="area in areas"
-                        :key="area"
+                        :key="area.id"
                         @click="selectArea(area)"
                         class="p-2 text-sm cursor-pointer hover:bg-zinc-100 text-zinc-800"
                       >
-                        {{ area }}
+                        {{ area.title }}
                       </li>
                     </ul>
                     <div
-                      @click="addNewArea"
+                      @click="openNewMatterTypeModal"
                       class="flex items-center justify-center border-t border-zinc-200 p-2 text-sm text-zinc-700 cursor-pointer hover:bg-zinc-100"
                     >
                       + New Matter Type
@@ -257,6 +257,11 @@
         @close="closeNewContactModal"
         @contact-added="handleContactAdded"
       />
+      <NewMatterTypeModal
+        :is-open="isNewMatterTypeModalOpen"
+        @close="closeNewMatterTypeModal"
+        @matter-type-added="handleMatterTypeAdded"
+      />
     </main>
   </div>
 </template>
@@ -266,6 +271,7 @@ import { reactive, ref, computed, onMounted } from "vue";
 import Swal from "sweetalert2";
 import api from "../../services/auth.js";
 import NewContactModal from "../../components/Modal/Firm/Matters/NewContact/NewContactModal.vue";
+import NewMatterTypeModal from "../../components/Modal/Firm/Matters/NewMatterType/NewMatterTypeModal.vue";
 
 const otherSteps = [
   "Assign Lawyer",
@@ -292,6 +298,7 @@ const clientSearch = ref("");
 const selectedClient = ref(null);
 const clients = ref([]);
 const isNewContactModalOpen = ref(false);
+const isNewMatterTypeModalOpen = ref(false);
 
 const fetchClients = async (query = "") => {
   try {
@@ -343,8 +350,34 @@ const searchClients = () => {
   fetchClients(clientSearch.value);
 };
 
+const fetchPracticingAreas = async () => {
+  try {
+    const response = await api.get(
+      "/api/firm_side/matter/dashboard/get_practicing_area/"
+    );
+    if (response.data.status) {
+      areas.value = response.data.data;
+    } else {
+      Swal.fire({
+        title: "Failed to Fetch Practicing Areas",
+        text: response.data.message || "Something went wrong.",
+        icon: "error",
+        confirmButtonColor: "#18181b",
+      });
+    }
+  } catch (error) {
+    Swal.fire({
+      title: "Error Fetching Practicing Areas",
+      text: error.message || "Network error occurred.",
+      icon: "error",
+      confirmButtonColor: "#18181b",
+    });
+  }
+};
+
 onMounted(() => {
   fetchClients();
+  fetchPracticingAreas();
 });
 
 const toggleClientDropdown = () => {
@@ -384,8 +417,8 @@ const handleContactAdded = (newContact) => {
 };
 
 const areaOpen = ref(false);
-const selectedArea = ref("");
-const areas = ref(["Area 1", "Area 2"]);
+const selectedArea = ref(null);
+const areas = ref([]);
 
 const toggleAreaDropdown = () => {
   areaOpen.value = !areaOpen.value;
@@ -393,18 +426,22 @@ const toggleAreaDropdown = () => {
 
 const selectArea = (area) => {
   selectedArea.value = area;
-  form.area = area;
+  form.area = area.title;
   areaOpen.value = false;
 };
 
-const addNewArea = () => {
+const openNewMatterTypeModal = () => {
   areaOpen.value = false;
-  Swal.fire({
-    title: "Add New Matter Type",
-    text: "Open new matter type form here.",
-    icon: "info",
-    confirmButtonText: "OK",
-    confirmButtonColor: "#18181b",
-  });
+  isNewMatterTypeModalOpen.value = true;
+};
+
+const closeNewMatterTypeModal = () => {
+  isNewMatterTypeModalOpen.value = false;
+};
+
+const handleMatterTypeAdded = (newMatterType) => {
+  areas.value.push(newMatterType);
+  selectArea(newMatterType);
+  isNewMatterTypeModalOpen.value = false;
 };
 </script>
