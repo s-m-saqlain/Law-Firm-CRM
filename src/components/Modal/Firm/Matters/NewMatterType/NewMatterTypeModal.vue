@@ -146,7 +146,6 @@ const submitMatterType = async () => {
       });
     }
   } catch (error) {
-    console.error("API Error:", error.response?.data);
     Swal.fire({
       title: "Error",
       text:

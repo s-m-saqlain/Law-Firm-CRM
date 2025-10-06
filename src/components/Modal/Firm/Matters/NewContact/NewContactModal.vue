@@ -386,10 +386,8 @@ const submitContact = async () => {
     };
 
     if (form.contactType === "Company") {
-      payload.company_name = form.companyName;
+      payload.first_name = form.companyName;
     }
-
-    console.log("Submitting payload:", payload);
 
     const response = await api.post(
       "/api/firm_side/contact-manage/create-contact/",
@@ -424,7 +422,6 @@ const submitContact = async () => {
       });
     }
   } catch (error) {
-    console.error("API Error:", error.response?.data);
     Swal.fire({
       title: "Error",
       text:
