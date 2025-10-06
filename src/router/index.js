@@ -137,16 +137,6 @@ const routes = [
     name: "ForgotPassword",
     component: ForgotPassword,
   },
-
-  // reset password
-
-  {
-  path: "/reset-password",
-  name: "ResetPassword",
-  component: () => import("../pages/ResetPassword.vue"),
-  props: (route) => ({ email: route.query.email }),
-},
-
 ];
 
 const router = createRouter({

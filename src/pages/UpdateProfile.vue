@@ -153,6 +153,9 @@ async function updateProfile() {
         title: "Profile Updated Successfully!",
       });
       await getProfile();
+      const { useAuthStore } = await import("../stores/auth.js");
+      const authStore = useAuthStore();
+      await authStore.getProfile();
     } else {
       Swal.fire({
         icon: "error",
