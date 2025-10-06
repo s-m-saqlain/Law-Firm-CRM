@@ -1,3 +1,4 @@
+<!-- pages/firm/AddMatter.vue -->
 <template>
   <div>
     <h1 class="text-2xl font-bold text-zinc-800">Add Matter</h1>
@@ -14,7 +15,6 @@
               aria-hidden="true"
               class="pointer-events-none absolute left-7 top-16 bottom-6 w-px bg-zinc-600"
             />
-
             <ul class="mt-6 space-y-6">
               <li class="relative pl-10">
                 <span
@@ -42,7 +42,6 @@
               <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div class="relative">
                   <label class="mb-1 block text-sm text-zinc-600">Client</label>
-
                   <div
                     @click="toggleClientDropdown"
                     class="flex items-center justify-between h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-800 cursor-pointer"
@@ -91,7 +90,6 @@
                         >
                           {{ client.name.charAt(0).toUpperCase() }}
                         </div>
-
                         <div>
                           <div class="text-sm font-medium text-zinc-800">
                             {{ client.name }}
@@ -104,7 +102,6 @@
                           </div>
                         </div>
                       </li>
-
                       <li
                         v-if="filteredClients.length === 0"
                         class="p-3 text-sm text-center text-zinc-500"
@@ -114,7 +111,7 @@
                     </ul>
 
                     <div
-                      @click="addNewContact"
+                      @click="openNewContactModal"
                       class="flex items-center justify-center border-t border-zinc-200 p-2 text-sm text-zinc-700 cursor-pointer hover:bg-zinc-100"
                     >
                       + New Contact
@@ -126,7 +123,6 @@
                   <label class="mb-1 block text-sm text-zinc-600"
                     >Practicing Area</label
                   >
-
                   <div
                     @click="toggleAreaDropdown"
                     class="flex items-center justify-between h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-800 cursor-pointer"
@@ -162,7 +158,6 @@
                         {{ area }}
                       </li>
                     </ul>
-
                     <div
                       @click="addNewArea"
                       class="flex items-center justify-center border-t border-zinc-200 p-2 text-sm text-zinc-700 cursor-pointer hover:bg-zinc-100"
@@ -256,6 +251,12 @@
           </section>
         </div>
       </section>
+
+      <NewContactModal
+        :is-open="isNewContactModalOpen"
+        @close="closeNewContactModal"
+        @contact-added="handleContactAdded"
+      />
     </main>
   </div>
 </template>
@@ -264,6 +265,7 @@
 import { reactive, ref, computed, onMounted } from "vue";
 import Swal from "sweetalert2";
 import api from "../../services/auth.js";
+import NewContactModal from "../../components/Modal/Firm/Matters/NewContact/NewContactModal.vue";
 
 const otherSteps = [
   "Assign Lawyer",
@@ -289,6 +291,7 @@ const clientOpen = ref(false);
 const clientSearch = ref("");
 const selectedClient = ref(null);
 const clients = ref([]);
+const isNewContactModalOpen = ref(false);
 
 const fetchClients = async (query = "") => {
   try {
@@ -362,15 +365,22 @@ const selectClient = (client) => {
   clientOpen.value = false;
 };
 
-const addNewContact = () => {
+const openNewContactModal = () => {
   clientOpen.value = false;
-  Swal.fire({
-    title: "Add New Contact",
-    text: "Open new contact form here.",
-    icon: "info",
-    confirmButtonText: "OK",
-    confirmButtonColor: "#18181b",
+  isNewContactModalOpen.value = true;
+};
+
+const closeNewContactModal = () => {
+  isNewContactModalOpen.value = false;
+};
+
+const handleContactAdded = (newContact) => {
+  clients.value.push({
+    ...newContact,
+    color: getRandomColor(),
   });
+  selectClient(newContact);
+  isNewContactModalOpen.value = false;
 };
 
 const areaOpen = ref(false);
