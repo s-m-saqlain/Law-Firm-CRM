@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import api from "../services/auth.js";
+import Cookies from "js-cookie";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -7,10 +8,12 @@ export const useAuthStore = defineStore("auth", {
     accessToken: null,
     refreshToken: null,
   }),
+
   getters: {
-    isAuthenticated: (state) => !!state.accessToken,
+    isAuthenticated: (state) => !!state.user,
     userRole: (state) => state.user?.role || null,
   },
+
   actions: {
     async login(email, password) {
       try {
@@ -20,13 +23,24 @@ export const useAuthStore = defineStore("auth", {
         });
 
         if (response.data.status) {
-          this.accessToken = response.data.access_token;
-          this.refreshToken = response.data.refresh_token;
-          this.user = response.data.data;
+          const { access_token, refresh_token, data: user } = response.data;
 
-          localStorage.setItem("access_token", this.accessToken);
-          localStorage.setItem("refresh_token", this.refreshToken);
-          localStorage.setItem("user", JSON.stringify(this.user));
+          this.user = user;
+          this.accessToken = access_token;
+          this.refreshToken = refresh_token;
+
+          Cookies.set("access_token", access_token, {
+            secure: true,
+            sameSite: "Strict",
+          });
+          Cookies.set("refresh_token", refresh_token, {
+            secure: true,
+            sameSite: "Strict",
+          });
+          // Cookies.set("user", JSON.stringify(user), {
+          //   secure: true,
+          //   sameSite: "Strict",
+          // });
 
           return response.data;
         } else {
@@ -46,7 +60,10 @@ export const useAuthStore = defineStore("auth", {
         const response = await api.get("/api/auth/session/get_profile/");
         if (response.data.status) {
           this.user = response.data.data;
-          localStorage.setItem("user", JSON.stringify(this.user));
+          Cookies.set("user", JSON.stringify(this.user), {
+            secure: true,
+            sameSite: "Strict",
+          });
         }
       } catch (error) {
         console.error("Profile fetch error:", error);
@@ -57,18 +74,19 @@ export const useAuthStore = defineStore("auth", {
       this.user = null;
       this.accessToken = null;
       this.refreshToken = null;
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("user");
+
+      Cookies.remove("access_token");
+      Cookies.remove("refresh_token");
+      Cookies.remove("user");
     },
 
     initializeAuth() {
-      const token = localStorage.getItem("access_token");
-      const user = localStorage.getItem("user");
+      const token = Cookies.get("access_token");
+      const user = Cookies.get("user");
       if (token && user) {
         this.accessToken = token;
         this.user = JSON.parse(user);
-        this.refreshToken = localStorage.getItem("refresh_token");
+        this.refreshToken = Cookies.get("refresh_token");
       }
     },
   },

@@ -3,16 +3,19 @@ import { useAuthStore } from "../stores/auth";
 import DashboardLayout from "../components/layout/DashboardLayout.vue";
 import Login from "../pages/Login.vue";
 import SuperAdminDashboard from "../pages/superadmin/Dashboard.vue";
-import SuperAdminMatters from "../pages/superadmin/Matters.vue";
-import SuperAdminDocuments from "../pages/superadmin/Documents.vue";
-import SuperAdminTasks from "../pages/superadmin/Tasks.vue";
-import SuperAdminCoverLetter from "../pages/superadmin/CoverLetter.vue";
+import SuperAdminAgencies from "../pages/superadmin/Agencies.vue";
+import SuperAdminAnalytics from "../pages/superadmin/Analytics.vue";
+import SuperAdminPackages from "../pages/superadmin/Packages.vue";
+import SuperAdminSettings from "../pages/superadmin/Settings.vue";
 
 import FirmDashboard from "../pages/firm/Dashboard.vue";
-import FirmMatters from "../pages/firm/Matters.vue";
-import FirmDocuments from "../pages/firm/Documents.vue";
-import FirmTasks from "../pages/firm/Tasks.vue";
-import FirmCoverLetter from "../pages/firm/CoverLetter.vue";
+import FirmSubscription from "../pages/firm/FirmSubscription.vue";
+import FirmLawyer from "../pages/firm/FirmLawyer.vue";
+import FirmAccount from "../pages/firm/FirmAccount.vue";
+import FirmMatters from "../pages/firm/FirmMatters.vue";
+import FirmTasks from "../pages/firm/FirmTasks.vue";
+import FirmBills from "../pages/firm/FirmBills.vue";
+import FirmClients from "../pages/firm/FirmClients.vue";
 
 import LawyerDashboard from "../pages/lawyer/Dashboard.vue";
 import LawyerMatters from "../pages/lawyer/Matters.vue";
@@ -36,10 +39,10 @@ const routes = [
     meta: { requiresAuth: true, role: "Super Admin" },
     children: [
       { path: "dashboard", component: SuperAdminDashboard },
-      { path: "matters", component: SuperAdminMatters },
-      { path: "documents", component: SuperAdminDocuments },
-      { path: "tasks", component: SuperAdminTasks },
-      { path: "cover-letter", component: SuperAdminCoverLetter },
+      { path: "firm", component: SuperAdminAgencies },
+      { path: "analytics", component: SuperAdminAnalytics },
+      { path: "packages", component: SuperAdminPackages },
+      { path: "settings", component: SuperAdminSettings },
       {
         path: "change-password",
         component: () => import("../pages/ChangePassword.vue"),
@@ -60,10 +63,13 @@ const routes = [
     meta: { requiresAuth: true, role: "Law Firm" },
     children: [
       { path: "dashboard", component: FirmDashboard },
+      { path: "subscription", component: FirmSubscription },
+      { path: "lawyer", component: FirmLawyer },
+      { path: "account", component: FirmAccount },
       { path: "matters", component: FirmMatters },
-      { path: "documents", component: FirmDocuments },
       { path: "tasks", component: FirmTasks },
-      { path: "cover-letter", component: FirmCoverLetter },
+      { path: "bills", component: FirmBills },
+      { path: "clients", component: FirmClients },
       {
         path: "change-password",
         component: () => import("../pages/ChangePassword.vue"),
