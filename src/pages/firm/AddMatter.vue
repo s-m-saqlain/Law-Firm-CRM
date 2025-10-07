@@ -37,13 +37,16 @@
               Matter Details
             </h2>
 
-            <form @submit.prevent class="grid grid-cols-1 gap-5">
+            <form @submit.prevent="submitMatter" class="grid grid-cols-1 gap-5">
               <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div class="relative">
-                  <label class="mb-1 block text-sm text-zinc-600">Client</label>
+                  <label class="mb-1 block text-sm text-zinc-600"
+                    >Client *</label
+                  >
                   <div
                     @click="toggleClientDropdown"
                     class="flex items-center justify-between h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-800 cursor-pointer"
+                    :class="{ 'border-red-500': errors.contact }"
                   >
                     <span>{{ selectedClient?.name || "Select client" }}</span>
                     <svg
@@ -61,6 +64,11 @@
                       />
                     </svg>
                   </div>
+                  <span
+                    v-if="errors.contact"
+                    class="text-red-500 text-xs mt-1"
+                    >{{ errors.contact }}</span
+                  >
 
                   <div
                     v-if="clientOpen"
@@ -120,11 +128,12 @@
 
                 <div class="relative">
                   <label class="mb-1 block text-sm text-zinc-600"
-                    >Practicing Area</label
+                    >Practicing Area *</label
                   >
                   <div
                     @click="toggleAreaDropdown"
                     class="flex items-center justify-between h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-800 cursor-pointer"
+                    :class="{ 'border-red-500': errors.practicing_area }"
                   >
                     <span>{{ selectedArea?.title || "Select area" }}</span>
                     <svg
@@ -142,6 +151,11 @@
                       />
                     </svg>
                   </div>
+                  <span
+                    v-if="errors.practicing_area"
+                    class="text-red-500 text-xs mt-1"
+                    >{{ errors.practicing_area }}</span
+                  >
 
                   <div
                     v-if="areaOpen"
@@ -169,78 +183,118 @@
 
               <div>
                 <label class="mb-1 block text-sm text-zinc-600"
-                  >Case Title</label
+                  >Case Title *</label
                 >
                 <input
                   v-model="form.title"
                   type="text"
                   placeholder="Enter case title"
                   class="h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm placeholder-zinc-400 outline-none focus:border-zinc-400"
+                  :class="{ 'border-red-500': errors.title }"
+                  @input="validateField('title')"
                 />
+                <span v-if="errors.title" class="text-red-500 text-xs mt-1">{{
+                  errors.title
+                }}</span>
               </div>
 
               <div>
-                <label class="mb-1 block text-sm text-zinc-600">Summary</label>
+                <label class="mb-1 block text-sm text-zinc-600"
+                  >Summary *</label
+                >
                 <textarea
                   v-model="form.summary"
                   rows="4"
                   placeholder="Case summary"
                   class="w-full rounded-md border border-zinc-300 bg-white p-3 text-sm placeholder-zinc-400 outline-none focus:border-zinc-400"
+                  :class="{ 'border-red-500': errors.summary }"
+                  @input="validateField('summary')"
                 />
+                <span v-if="errors.summary" class="text-red-500 text-xs mt-1">{{
+                  errors.summary
+                }}</span>
               </div>
 
               <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div>
                   <label class="mb-1 block text-sm text-zinc-600"
-                    >Trial Count</label
+                    >Trial Count *</label
                   >
                   <input
                     v-model.number="form.trialCount"
                     type="number"
                     class="h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm outline-none focus:border-zinc-400"
+                    :class="{ 'border-red-500': errors.trialCount }"
+                    @input="validateField('trialCount')"
                   />
+                  <span
+                    v-if="errors.trialCount"
+                    class="text-red-500 text-xs mt-1"
+                    >{{ errors.trialCount }}</span
+                  >
                 </div>
                 <div>
-                  <label class="mb-1 block text-sm text-zinc-600">Stage</label>
+                  <label class="mb-1 block text-sm text-zinc-600"
+                    >Stage *</label
+                  >
                   <input
                     v-model="form.stage"
                     type="text"
                     placeholder="e.g., In Court"
                     class="h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm placeholder-zinc-400 outline-none focus:border-zinc-400"
+                    :class="{ 'border-red-500': errors.stage }"
+                    @input="validateField('stage')"
                   />
+                  <span v-if="errors.stage" class="text-red-500 text-xs mt-1">{{
+                    errors.stage
+                  }}</span>
                 </div>
               </div>
 
               <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div>
                   <label class="mb-1 block text-sm text-zinc-600"
-                    >Priority</label
+                    >Priority *</label
                   >
                   <select
                     v-model="form.priority"
                     class="block h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-800 outline-none focus:border-zinc-400"
+                    :class="{ 'border-red-500': errors.priority }"
+                    @change="validateField('priority')"
                   >
                     <option>Low</option>
                     <option>Medium</option>
                     <option>High</option>
                   </select>
+                  <span
+                    v-if="errors.priority"
+                    class="text-red-500 text-xs mt-1"
+                    >{{ errors.priority }}</span
+                  >
                 </div>
                 <div>
                   <label class="mb-1 block text-sm text-zinc-600"
-                    >Start Date</label
+                    >Start Date *</label
                   >
                   <input
                     v-model="form.startDate"
                     type="date"
                     placeholder="mm/dd/yyyy"
                     class="h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm placeholder-zinc-400 outline-none focus:border-zinc-400"
+                    :class="{ 'border-red-500': errors.startDate }"
+                    @input="validateField('startDate')"
                   />
+                  <span
+                    v-if="errors.startDate"
+                    class="text-red-500 text-xs mt-1"
+                    >{{ errors.startDate }}</span
+                  >
                 </div>
               </div>
 
               <div class="mt-1 flex items-center justify-end">
                 <button
-                  type="button"
+                  type="submit"
                   class="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow hover:bg-zinc-800"
                 >
                   Save &amp; Next
@@ -282,13 +336,24 @@ const otherSteps = [
 ];
 
 const form = reactive({
-  client: "",
-  area: "",
+  contact_id: null,
+  practicing_area_id: null,
+  title: "",
+  summary: "",
+  trialCount: null,
+  stage: "",
+  priority: "Low",
+  startDate: "",
+});
+
+const errors = reactive({
+  contact: "",
+  practicing_area: "",
   title: "",
   summary: "",
   trialCount: "",
   stage: "",
-  priority: "Low",
+  priority: "",
   startDate: "",
 });
 
@@ -392,9 +457,10 @@ const filteredClients = computed(() => {
 });
 
 const selectClient = (client) => {
-  selectedClient.value = client;
-  form.client = client.name;
+  // selectedClient.value = client;
+  form.contact_id = client.id;
   clientOpen.value = false;
+  validateField("");
 };
 
 const openNewContactModal = () => {
@@ -425,8 +491,9 @@ const toggleAreaDropdown = () => {
 
 const selectArea = (area) => {
   selectedArea.value = area;
-  form.area = area.title;
+  form.practicing_area_id = area.id;
   areaOpen.value = false;
+  validateField("practicing_area");
 };
 
 const openNewMatterTypeModal = () => {
@@ -442,5 +509,117 @@ const handleMatterTypeAdded = (newMatterType) => {
   areas.value.push(newMatterType);
   selectArea(newMatterType);
   isNewMatterTypeModalOpen.value = false;
+};
+
+const validateField = (field) => {
+  switch (field) {
+    case "contact":
+      errors.contact = form.contact_id ? "" : "Client is required";
+      break;
+    case "practicing_area":
+      errors.practicing_area = form.practicing_area_id
+        ? ""
+        : "Practicing area is required";
+      break;
+    case "title":
+      errors.title = form.title ? "" : "Case title is required";
+      break;
+    case "summary":
+      errors.summary = form.summary ? "" : "Summary is required";
+      break;
+    case "trialCount":
+      errors.trialCount =
+        form.trialCount !== null && form.trialCount >= 0
+          ? ""
+          : "Trial count is required and must be a non-negative number";
+      break;
+    case "stage":
+      errors.stage = form.stage ? "" : "Stage is required";
+      break;
+    case "priority":
+      errors.priority = form.priority ? "" : "Priority is required";
+      break;
+    case "startDate":
+      errors.startDate = form.startDate ? "" : "Start date is required";
+      break;
+  }
+};
+
+const validateForm = () => {
+  validateField("contact");
+  validateField("practicing_area");
+  validateField("title");
+  validateField("summary");
+  validateField("trialCount");
+  validateField("stage");
+  validateField("priority");
+  validateField("startDate");
+
+  return Object.values(errors).every((error) => error === "");
+};
+
+const submitMatter = async () => {
+  if (!validateForm()) {
+    return;
+  }
+
+  try {
+    const payload = {
+      practicing_area: form.practicing_area_id,
+      contact: form.contact_id,
+      title: form.title,
+      case_summary: form.summary,
+      trial_count: form.trialCount,
+      stage: form.stage,
+      priority: form.priority,
+      started_at: form.startDate,
+    };
+
+    const response = await api.post(
+      "/api/firm_side/matter/creation/create-matter-info/",
+      payload
+    );
+
+    if (response.data.status) {
+      Swal.fire({
+        title: "Success",
+        text: "Matter details saved successfully!",
+        icon: "success",
+        confirmButtonColor: "#18181b",
+      });
+      resetForm();
+    } else {
+      Swal.fire({
+        title: "Failed to Save Matter",
+        text: response.data.message || "Something went wrong.",
+        icon: "error",
+        confirmButtonColor: "#18181b",
+      });
+    }
+  } catch (error) {
+    Swal.fire({
+      title: "Error",
+      text:
+        error.response?.data?.message ||
+        error.message ||
+        "Network error occurred.",
+      icon: "error",
+      confirmButtonColor: "#18181b",
+    });
+  }
+};
+
+const resetForm = () => {
+  form.contact_id = null;
+  form.practicing_area_id = null;
+  form.title = "";
+  form.summary = "";
+  form.trialCount = null;
+  form.stage = "";
+  form.priority = "Low";
+  form.startDate = "";
+  selectedClient.value = null;
+  selectedArea.value = null;
+  Object.keys(errors).forEach((key) => (errors[key] = ""));
 };
 </script>

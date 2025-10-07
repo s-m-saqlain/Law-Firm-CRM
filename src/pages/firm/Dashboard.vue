@@ -9,14 +9,6 @@
         <p class="text-sm text-gray-500">Total Lawyer Count</p>
         <h2 class="text-2xl font-bold">{{ stats.total_lawyer_count }}</h2>
       </div>
-      <!-- <div class="bg-white p-6 shadow rounded-lg">
-        <p class="text-sm text-gray-500">Agents</p>
-        <h2 class="text-2xl font-bold">{{ stats.total_agents }}</h2>
-      </div>
-      <div class="bg-white p-6 shadow rounded-lg">
-        <p class="text-sm text-gray-500">Clients</p>
-        <h2 class="text-2xl font-bold">{{ stats.total_clients }}</h2>
-      </div> -->
     </div>
   </div>
 </template>
