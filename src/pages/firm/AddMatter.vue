@@ -315,178 +315,24 @@
               </form>
             </div>
 
-            <div v-if="currentStep === 'Assign Lawyer'">
-              <h2 class="mb-4 text-lg font-semibold text-zinc-800">
-                Assign Lawyer
-              </h2>
-              <form @submit.prevent="" class="grid grid-cols-1 gap-5">
-                <div class="relative">
-                  <label class="mb-1 block text-sm text-zinc-600"
-                    >Responsible Solicitor *</label
-                  >
-                  <div
-                    @click="toggleDropdown('responsibleSolicitor')"
-                    class="flex items-center justify-between h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-800 cursor-pointer"
-                  >
-                    <span>{{
-                      selectedResponsibleSolicitor?.full_name ||
-                      "Select responsible solicitor"
-                    }}</span>
-                    <svg
-                      class="h-4 w-4 text-zinc-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                  <div
-                    v-if="dropdownOpen.responsibleSolicitor"
-                    class="absolute z-10 mt-1 w-full rounded-md border border-zinc-200 bg-white shadow-lg"
-                  >
-                    <ul class="max-h-56 overflow-y-auto">
-                      <li
-                        v-for="lawyer in filteredLawyers"
-                        :key="lawyer.id"
-                        @click="selectLawyer(lawyer, 'responsibleSolicitor')"
-                        class="p-2 text-sm cursor-pointer hover:bg-zinc-100 text-zinc-800"
-                      >
-                        {{ lawyer.full_name }}
-                      </li>
-                      <li
-                        v-if="filteredLawyers.length === 0"
-                        class="p-3 text-sm text-center text-zinc-500"
-                      >
-                        No result found
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+            <AssignLawyer
+              v-if="currentStep === 'Assign Lawyer'"
+              :filtered-lawyers="filteredLawyers"
+              :selected-responsible-solicitor="selectedResponsibleSolicitor"
+              :selected-responsible-staff="selectedResponsibleStaff"
+              :selected-originating-solicitor="selectedOriginatingSolicitor"
+              :dropdown-open="dropdownOpen"
+              @go-back="goBack"
+              @select-lawyer="selectLawyer"
+              @submit="submitAssignLawyer"
+              @update:dropdown-open="updateDropdownOpen"
+            />
 
-                <div class="relative">
-                  <label class="mb-1 block text-sm text-zinc-600"
-                    >Responsible Staff</label
-                  >
-                  <div
-                    @click="toggleDropdown('responsibleStaff')"
-                    class="flex items-center justify-between h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-800 cursor-pointer"
-                  >
-                    <span>{{
-                      selectedResponsibleStaff?.full_name ||
-                      "Select responsible staff"
-                    }}</span>
-                    <svg
-                      class="h-4 w-4 text-zinc-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                  <div
-                    v-if="dropdownOpen.responsibleStaff"
-                    class="absolute z-10 mt-1 w-full rounded-md border border-zinc-200 bg-white shadow-lg"
-                  >
-                    <ul class="max-h-56 overflow-y-auto">
-                      <li
-                        v-for="lawyer in filteredLawyers"
-                        :key="lawyer.id"
-                        @click="selectLawyer(lawyer, 'responsibleStaff')"
-                        class="p-2 text-sm cursor-pointer hover:bg-zinc-100 text-zinc-800"
-                      >
-                        {{ lawyer.full_name }}
-                      </li>
-                      <li
-                        v-if="filteredLawyers.length === 0"
-                        class="p-3 text-sm text-center text-zinc-500"
-                      >
-                        No result found
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div class="relative">
-                  <label class="mb-1 block text-sm text-zinc-600"
-                    >Originating Solicitor</label
-                  >
-                  <div
-                    @click="toggleDropdown('originatingSolicitor')"
-                    class="flex items-center justify-between h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-800 cursor-pointer"
-                  >
-                    <span>{{
-                      selectedOriginatingSolicitor?.full_name ||
-                      "Select originating solicitor"
-                    }}</span>
-                    <svg
-                      class="h-4 w-4 text-zinc-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                  <div
-                    v-if="dropdownOpen.originatingSolicitor"
-                    class="absolute z-10 mt-1 w-full rounded-md border border-zinc-200 bg-white shadow-lg"
-                  >
-                    <ul class="max-h-56 overflow-y-auto">
-                      <li
-                        v-for="lawyer in filteredLawyers"
-                        :key="lawyer.id"
-                        @click="selectLawyer(lawyer, 'originatingSolicitor')"
-                        class="p-2 text-sm cursor-pointer hover:bg-zinc-100 text-zinc-800"
-                      >
-                        {{ lawyer.full_name }}
-                      </li>
-                      <li
-                        v-if="filteredLawyers.length === 0"
-                        class="p-3 text-sm text-center text-zinc-500"
-                      >
-                        No result found
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div class="mt-1 flex items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    @click="goBack"
-                    class="rounded-md bg-zinc-200 px-4 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-300"
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    class="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow hover:bg-zinc-800"
-                  >
-                    Save & Next
-                  </button>
-                </div>
-              </form>
-            </div>
+            <MatterNotification
+              v-if="currentStep === 'Matter Notification'"
+              @go-back="goBackFromNotification"
+              @save-and-next="goToNextStep"
+            />
           </section>
         </div>
       </section>
@@ -512,6 +358,8 @@ import Swal from "sweetalert2";
 import api from "../../services/auth.js";
 import NewContactModal from "../../components/Modal/Firm/Matters/NewContact/NewContactModal.vue";
 import NewMatterTypeModal from "../../components/Modal/Firm/Matters/NewMatterType/NewMatterTypeModal.vue";
+import AssignLawyer from "../../components/Modal/Firm/Matters/AssignLawyer.vue";
+import MatterNotification from "../../components/Modal/Firm/Matters/MatterNotification.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -572,6 +420,10 @@ const selectedResponsibleSolicitor = ref(null);
 const selectedResponsibleStaff = ref(null);
 const selectedOriginatingSolicitor = ref(null);
 const lawyers = ref([]);
+
+const updateDropdownOpen = (newDropdownOpen) => {
+  Object.assign(dropdownOpen, newDropdownOpen);
+};
 
 const fetchLawyers = async () => {
   try {
@@ -691,8 +543,9 @@ const fetchMatterDetails = async (id) => {
       form.summary = data.case_summary;
       form.trialCount = parseInt(data.trial_count);
       form.stage = data.stage;
-      // form.priority = data.priority_name;
-      form.priority = data.priority_name.charAt(0).toUpperCase() + data.priority_name.slice(1).toLowerCase(); 
+      form.priority =
+        data.priority_name.charAt(0).toUpperCase() +
+        data.priority_name.slice(1).toLowerCase();
       form.startDate = data.started_at.split("T")[0];
       selectedClient.value = {
         id: data.contact_info.id,
@@ -706,6 +559,32 @@ const fetchMatterDetails = async (id) => {
         id: data.practiceing_area_info.id,
         title: data.practiceing_area_info.title,
       };
+      const assignedLawyersResponse = await api.get(
+        `/api/firm_side/matter/creation/retrieve-assigned-lawyers/?matter_id=${id}`
+      );
+      if (assignedLawyersResponse.data.status) {
+        const assignedLawyers = assignedLawyersResponse.data.data;
+        assignedLawyers.forEach((lawyer) => {
+          const lawyerData = {
+            id: lawyer.lawyer.id,
+            lawyer_id: lawyer.lawyer.lawyer_id,
+            full_name: lawyer.lawyer.full_name,
+            email: lawyer.lawyer.email,
+            mobile_number: lawyer.lawyer.mobile_number,
+            role_name: lawyer.lawyer.role_name,
+          };
+          if (lawyer.role === "RESPONSIBLE_SOLICITOR") {
+            selectedResponsibleSolicitor.value = lawyerData;
+            form.responsibleSolicitor_id = lawyerData.lawyer_id;
+          } else if (lawyer.role === "RESPONSIBLE_STAFF") {
+            selectedResponsibleStaff.value = lawyerData;
+            form.responsibleStaff_id = lawyerData.lawyer_id;
+          } else if (lawyer.role === "ORIGINATING_SOLICITOR") {
+            selectedOriginatingSolicitor.value = lawyerData;
+            form.originatingSolicitor_id = lawyerData.lawyer_id;
+          }
+        });
+      }
     } else {
       Swal.fire({
         title: "Failed to Fetch Matter Details",
@@ -742,8 +621,6 @@ const toggleClientDropdown = () => {
     fetchClients();
   }
 };
-
-// const filteredClients = computed(() => clients.value);
 
 const searchClients = () => {
   fetchClients(clientSearch.value);
@@ -813,24 +690,19 @@ const handleMatterTypeAdded = (newMatterType) => {
   isNewMatterTypeModalOpen.value = false;
 };
 
-const toggleDropdown = (type) => {
-  dropdownOpen[type] = !dropdownOpen[type];
-};
-
 const filteredLawyers = computed(() => lawyers.value);
 
-const selectLawyer = (lawyer, type) => {
+const selectLawyer = ({ lawyer, type }) => {
   if (type === "responsibleSolicitor") {
     selectedResponsibleSolicitor.value = lawyer;
-    form.responsibleSolicitor_id = lawyer.id;
+    form.responsibleSolicitor_id = lawyer.lawyer_id;
   } else if (type === "responsibleStaff") {
     selectedResponsibleStaff.value = lawyer;
-    form.responsibleStaff_id = lawyer.id;
+    form.responsibleStaff_id = lawyer.lawyer_id;
   } else if (type === "originatingSolicitor") {
     selectedOriginatingSolicitor.value = lawyer;
-    form.originatingSolicitor_id = lawyer.id;
+    form.originatingSolicitor_id = lawyer.lawyer_id;
   }
-  dropdownOpen[type] = false;
   validateField(type);
 };
 
@@ -951,6 +823,71 @@ const submitMatter = async () => {
   }
 };
 
+const submitAssignLawyer = async () => {
+  try {
+    const assignLawyers = [];
+    if (form.responsibleSolicitor_id) {
+      assignLawyers.push({
+        lawyer: form.responsibleSolicitor_id,
+        role: "RESPONSIBLE_SOLICITOR",
+      });
+    }
+    if (form.responsibleStaff_id) {
+      assignLawyers.push({
+        lawyer: form.responsibleStaff_id,
+        role: "RESPONSIBLE_STAFF",
+      });
+    }
+    if (form.originatingSolicitor_id) {
+      assignLawyers.push({
+        lawyer: form.originatingSolicitor_id,
+        role: "ORIGINATING_SOLICITOR",
+      });
+    }
+
+    const payload = {
+      matter_id: matterId.value,
+      assign_lawyers: assignLawyers,
+    };
+
+    const response = await api.post(
+      "/api/firm_side/matter/creation/assign-lawyers/",
+      payload
+    );
+
+    if (response.data.status) {
+      Swal.fire({
+        title: "Success",
+        text: "Lawyers assigned successfully!",
+        icon: "success",
+        confirmButtonColor: "#18181b",
+      });
+      currentStep.value = "Matter Notification";
+      router.push({
+        path: "/firm/add-matter",
+        query: { matterId: matterId.value },
+      });
+    } else {
+      Swal.fire({
+        title: "Failed to Assign Lawyers",
+        text: response.data.message || "Something went wrong.",
+        icon: "error",
+        confirmButtonColor: "#18181b",
+      });
+    }
+  } catch (error) {
+    Swal.fire({
+      title: "Error",
+      text:
+        error.response?.data?.message ||
+        error.message ||
+        "Network error occurred.",
+      icon: "error",
+      confirmButtonColor: "#18181b",
+    });
+  }
+};
+
 const goBack = () => {
   if (currentStep.value === "Assign Lawyer") {
     currentStep.value = "Matter Details";
@@ -962,5 +899,26 @@ const goBack = () => {
       fetchMatterDetails(matterId.value);
     }
   }
+};
+
+const goBackFromNotification = () => {
+  if (currentStep.value === "Matter Notification") {
+    currentStep.value = "Assign Lawyer";
+    router.push({
+      path: "/firm/add-matter",
+      query: { matterId: matterId.value },
+    });
+    if (matterId.value) {
+      fetchMatterDetails(matterId.value);
+    }
+  }
+};
+
+const goToNextStep = () => {
+  currentStep.value = "Related Contacts";
+  router.push({
+    path: "/firm/add-matter",
+    query: { matterId: matterId.value },
+  });
 };
 </script>
