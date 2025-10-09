@@ -112,7 +112,7 @@
               :key="row.id"
               class="border-t border-gray-200 hover:bg-gray-50"
             >
-              <td class="px-4 py-3">
+              <td class="px-4 py-3" @click="navigateToEdit(row.id)">
                 <button
                   type="button"
                   class="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-gray-700 hover:bg-gray-100"
@@ -205,11 +205,15 @@ const fetchMatters = async () => {
   }
 };
 
-onMounted(() => {
-  fetchMatters();
-});
-
 function onAddMatter() {
   router.push("/firm/add-matter");
 }
+
+const navigateToEdit = (id) => {
+  router.push(`/firm/add-matter?matterId=${id}`);
+};
+
+onMounted(() => {
+  fetchMatters();
+});
 </script>
