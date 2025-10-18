@@ -228,7 +228,6 @@ const handleSubmit = async () => {
       closeModal();
     } else {
       Swal.fire("Error", res.data?.message || "Failed to add lawyer.", "error");
-      console.log(res);
     }
   } catch (error) {
     Swal.fire(

@@ -150,7 +150,9 @@
         </div>
 
         <div class="mb-4">
-          <label class="mb-1 block text-sm text-zinc-600">Address *</label>
+          <label class="mb-1 block text-sm text-zinc-600"
+            >Address (Optional)</label
+          >
           <input
             v-model="form.address.street"
             type="text"
@@ -284,11 +286,6 @@ const isFormValid = computed(() => {
     (form.contactType === "Person" ? form.firstName : form.companyName) &&
     form.email &&
     form.phoneNumber &&
-    form.address.street &&
-    form.address.city &&
-    form.address.state &&
-    form.address.postal_code &&
-    form.address.country &&
     !errors.contactType &&
     !errors.firstName &&
     !errors.companyName &&
@@ -334,21 +331,19 @@ const validateField = (field) => {
         : "";
       break;
     case "street":
-      errors.street = form.address.street ? "" : "Street is required";
+      errors.street = "";
       break;
     case "city":
-      errors.city = form.address.city ? "" : "City is required";
+      errors.city = "";
       break;
     case "state":
-      errors.state = form.address.state ? "" : "State is required";
+      errors.state = "";
       break;
     case "postal_code":
-      errors.postal_code = form.address.postal_code
-        ? ""
-        : "Postal code is required";
+      errors.postal_code = "";
       break;
     case "country":
-      errors.country = form.address.country ? "" : "Country is required";
+      errors.country = "";
       break;
   }
 };
@@ -382,11 +377,11 @@ const submitContact = async () => {
       phone_number: form.phoneNumber,
       role: form.contactType === "Person" ? "PERSON" : "COMPANY",
       address: {
-        street: form.address.street,
-        city: form.address.city,
-        state: form.address.state,
-        postal_code: form.address.postal_code,
-        country: form.address.country,
+        street: form.address.street || "",
+        city: form.address.city || "",
+        state: form.address.state || "",
+        postal_code: form.address.postal_code || "",
+        country: form.address.country || "",
       },
     };
 

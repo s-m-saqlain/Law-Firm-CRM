@@ -170,7 +170,6 @@ const filteredAgencies = computed(() => {
       .includes(search.value.toLowerCase())
   );
 });
-
 </script>
 
 <style scoped>
