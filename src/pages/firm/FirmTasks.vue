@@ -1,19 +1,81 @@
 <template>
   <div class="p-6">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold">Tasks</h2>
+      <h2 class="text-[14px] font-semibold text-[#155DFC]">Tasks</h2>
       <div class="flex space-x-2">
         <button class="bg-black text-white px-4 py-2 rounded">Tasks</button>
-        <button class="bg-gray-200 text-black px-4 py-2 rounded">
+        <button class="bg-gray-100 text-black px-4 py-2 rounded border">
           Task types
         </button>
-        <button class="bg-gray-200 text-black px-4 py-2 rounded">
+        <button class="bg-gray-100 text-black px-4 py-2 rounded border">
           Task lists
         </button>
-        <button class="bg-gray-200 text-black px-4 py-2 rounded">
+        <button class="bg-gray-100 text-black px-4 py-2 rounded border">
           New task
         </button>
       </div>
+    </div>
+
+    <div
+      class="flex flex-wrap items-center gap-2 mb-4 bg-white p-3 rounded-md border"
+    >
+      <div class="flex space-x-2 bg-gray-100 p-1 rounded-md">
+        <button
+          class="px-3 py-1 rounded-md text-sm font-medium"
+          :class="
+            activeTab === 'outstanding'
+              ? 'bg-white shadow text-black'
+              : 'text-gray-600 hover:text-black'
+          "
+          @click="activeTab = 'outstanding'"
+        >
+          Outstanding
+        </button>
+        <button
+          class="px-3 py-1 rounded-md text-sm font-medium"
+          :class="
+            activeTab === 'completed'
+              ? 'bg-white shadow text-black'
+              : 'text-gray-600 hover:text-black'
+          "
+          @click="activeTab = 'completed'"
+        >
+          Completed
+        </button>
+      </div>
+
+      <input
+        type="date"
+        class="border rounded-md px-2 py-1 text-sm"
+        placeholder="From date"
+      />
+      <input
+        type="date"
+        class="border rounded-md px-2 py-1 text-sm"
+        placeholder="To date"
+      />
+      <div class="relative">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search"
+          class="border rounded-md px-3 py-1 text-sm w-44"
+        />
+        <span
+          class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
+        >
+          🔍
+        </span>
+      </div>
+      <select
+        class="border rounded-md px-2 py-1 text-sm text-gray-700"
+        v-model="selectedPriority"
+      >
+        <option>All Priorities</option>
+        <option>High Priority</option>
+        <option>Medium Priority</option>
+        <option>Low Priority</option>
+      </select>
     </div>
 
     <div v-if="loading" class="flex justify-center items-center py-20">
@@ -22,61 +84,70 @@
       ></div>
     </div>
 
-    <div v-else class="overflow-x-auto bg-white rounded shadow">
-      <table class="min-w-full border">
-        <thead class="bg-gray-100">
-          <tr class="text-left text-sm font-semibold text-gray-600">
-            <th class="p-3 border">Action</th>
-            <th class="p-3 border">Due Date</th>
-            <th class="p-3 border">Name & Description</th>
-            <th class="p-3 border">Matter</th>
-            <th class="p-3 border">Assigned Lawyer</th>
-            <th class="p-3 border">Status</th>
-            <th class="p-3 border">Priority</th>
-            <th class="p-3 border">Total Time (hr)</th>
+    <div v-else class="overflow-x-auto bg-white rounded-lg border shadow-sm">
+      <table class="min-w-full text-sm border-collapse">
+        <thead class="bg-gray-50 text-gray-700 border-b text-left">
+          <tr>
+            <th class="p-3 border-r">Action</th>
+            <th class="p-3 border-r">Due Date</th>
+            <th class="p-3 border-r">Name & Description</th>
+            <th class="p-3 border-r">Matter</th>
+            <th class="p-3 border-r">Assigned Lawyer</th>
+            <th class="p-3 border-r">Status</th>
+            <th class="p-3 border-r">Priority</th>
+            <th class="p-3">Total Time (hr)</th>
           </tr>
         </thead>
         <tbody>
           <tr
             v-for="(task, index) in tasks"
             :key="index"
-            class="text-sm hover:bg-gray-50"
+            class="hover:bg-gray-50 border-b"
           >
-            <td class="p-3 border">
-              <button class="border border-gray-300 rounded px-2 py-1 text-sm">
+            <td class="p-3">
+              <button
+                class="px-3 py-1 text-sm rounded-md border border-gray-300 bg-white hover:bg-gray-100 transition"
+              >
                 Mark complete
               </button>
             </td>
-            <td class="p-3 border text-red-500 font-semibold">
+
+            <td class="p-3 text-red-500 font-semibold">
               {{ formatDate(task.deadline) }}
             </td>
-            <td class="p-3 border">
-              <div>
-                <a href="#" class="text-blue-600 hover:underline font-medium">
-                  {{ task.title }}
-                </a>
-                <div class="text-gray-500 text-xs">{{ task.description }}</div>
+
+            <td class="p-3">
+              <a href="#" class="text-blue-600 font-medium hover:underline">
+                {{ task.title }}
+              </a>
+              <div class="text-gray-500 text-xs">
+                {{ task.description }}
               </div>
             </td>
-            <td class="p-3 border text-blue-600 hover:underline">
+
+            <td class="p-3 text-blue-600 hover:underline">
               {{ task.matter_info.title }}
               <div class="text-xs text-gray-500">
                 Stage: {{ task.matter_info.stage }}
               </div>
             </td>
-            <td class="p-3 border">
+
+            <td class="p-3">
               {{ task.assigned_lawyer_info.lawyer_name }}
             </td>
-            <td class="p-3 border flex items-center space-x-1 text-yellow-600">
+
+            <td class="p-3 text-yellow-600 flex items-center space-x-1">
               <span>🕒</span>
               <span>{{ task.get_status_display }}</span>
             </td>
-            <td class="p-3 border text-gray-500">
+
+            <td class="p-3 text-gray-600">
               {{ task.get_priority_display }}
             </td>
-            <td class="p-3 border">
+
+            <td class="p-3">
               <button
-                class="border border-blue-500 text-blue-500 rounded px-2 py-1 text-sm"
+                class="px-3 py-1 text-sm border border-blue-500 text-blue-500 rounded-md hover:bg-blue-50"
               >
                 + Add Time
               </button>
@@ -84,28 +155,32 @@
           </tr>
 
           <tr v-if="tasks.length === 0">
-            <td colspan="8" class="text-center text-gray-500 p-6">
+            <td colspan="8" class="text-center text-gray-500 py-6">
               No tasks found.
             </td>
           </tr>
         </tbody>
       </table>
 
-      <div class="p-4 flex justify-center items-center space-x-4">
-        <button
-          class="px-4 py-2 border rounded bg-gray-100 hover:bg-gray-200"
-          :disabled="currentPage === 1"
-          @click="prevPage"
-        >
-          ←
-        </button>
-        <span class="text-sm text-gray-600"> Page {{ currentPage }} </span>
-        <button
-          class="px-4 py-2 border rounded bg-gray-100 hover:bg-gray-200"
-          @click="nextPage"
-        >
-          →
-        </button>
+      <div
+        class="p-4 flex justify-between items-center text-sm text-gray-600 border-t bg-gray-50 rounded-b-lg"
+      >
+        <div class="flex space-x-2">
+          <button
+            class="px-3 py-1 border rounded bg-white hover:bg-gray-100 disabled:opacity-50"
+            :disabled="currentPage === 1"
+            @click="prevPage"
+          >
+            ←
+          </button>
+          <button
+            class="px-3 py-1 border rounded bg-white hover:bg-gray-100"
+            @click="nextPage"
+          >
+            →
+          </button>
+        </div>
+        <div>Page {{ currentPage }} of — Showing {{ tasks.length }} tasks</div>
       </div>
     </div>
   </div>
@@ -119,6 +194,8 @@ import api from "../../services/auth";
 const tasks = ref([]);
 const loading = ref(false);
 const currentPage = ref(1);
+const selectedPriority = ref("All Priorities");
+const activeTab = ref("outstanding");
 
 const Toast = Swal.mixin({
   toast: true,
@@ -128,14 +205,6 @@ const Toast = Swal.mixin({
   timerProgressBar: true,
   background: "#fff",
   color: "#000",
-  showClass: {
-    popup: "swal2-noanimation",
-    backdrop: "swal2-noanimation",
-  },
-  hideClass: {
-    popup: "",
-    backdrop: "",
-  },
 });
 
 const fetchTasks = async () => {
