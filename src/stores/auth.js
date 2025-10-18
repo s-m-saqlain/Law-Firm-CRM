@@ -29,6 +29,8 @@ export const useAuthStore = defineStore("auth", {
           this.accessToken = access_token;
           this.refreshToken = refresh_token;
 
+          console.log(access_token);
+
           Cookies.set("access_token", access_token, {
             secure: true,
             sameSite: "Strict",
@@ -57,7 +59,14 @@ export const useAuthStore = defineStore("auth", {
 
     async getProfile() {
       try {
-        const response = await api.get("/api/auth/session/get_profile/");
+        const token = Cookies.get("access_token");
+
+        // const response = await api.get("/api/auth/session/get_profile/");
+        const response = await api.get("/api/auth/session/get_profile/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (response.data.status) {
           this.user = response.data.data;
           Cookies.set("user", JSON.stringify(this.user), {

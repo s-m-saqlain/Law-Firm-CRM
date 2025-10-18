@@ -154,7 +154,6 @@
               </td>
             </tr>
 
-            <!-- No Data -->
             <tr v-if="!loading && matters.length === 0">
               <td colspan="7" class="px-4 py-10 text-center text-gray-600">
                 No matters found.

@@ -23,6 +23,7 @@ const loading = ref(true);
 async function fetchDashboardStats() {
   try {
     const res = await api.get("/api/firm_side/analytics/dashboard_stats/");
+
     if (res.data) {
       stats.value = res.data.data;
     } else {

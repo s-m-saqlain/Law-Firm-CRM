@@ -402,10 +402,9 @@ const submitContact = async () => {
         confirmButtonColor: "#18181b",
       });
       const newContact = {
-        name:
-          form.contactType === "Person"
-            ? `${form.firstName} ${form.middleName} ${form.lastName}`.trim()
-            : form.companyName,
+        id: response.data.id,
+        first_name: form.contactType === "Person" ? form.firstName : "",
+        last_name: form.contactType === "Person" ? form.lastName || "" : "",
         type: form.contactType === "Person" ? "PERSON" : "COMPANY",
         email: form.email,
         phone_number: form.phoneNumber,
