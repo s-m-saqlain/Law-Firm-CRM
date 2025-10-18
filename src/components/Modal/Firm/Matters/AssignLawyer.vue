@@ -1,5 +1,6 @@
 <template>
   <div>
+    <LoadingSpinner :is-loading="loading" />
     <h2 class="mb-4 text-lg font-semibold text-zinc-800">Assign Lawyer</h2>
     <form @submit.prevent="submitAssignLawyer" class="grid grid-cols-1 gap-5">
       <div class="relative">
@@ -189,6 +190,7 @@
 import { reactive, ref, computed, onMounted } from "vue";
 import Swal from "sweetalert2";
 import api from "../../../../services/auth";
+import LoadingSpinner from "../../../../components/LoadingSpinner.vue";
 
 const props = defineProps({
   matterId: {
@@ -198,6 +200,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["go-back", "save-and-next"]);
+const loading = ref(false);
 
 const form = reactive({
   responsibleSolicitor_id: null,
@@ -266,6 +269,7 @@ const isSelected = (lawyer, type) => {
 };
 
 const fetchLawyers = async () => {
+  loading.value = true;
   try {
     const response = await api.get(
       "/api/firm_side/lawyer_manage/get_my_lawyers/"
@@ -304,10 +308,13 @@ const fetchLawyers = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
 const fetchAssignedLawyers = async () => {
+  loading.value = true;
   try {
     const response = await api.get(
       `/api/firm_side/matter/creation/retrieve-assigned-lawyers/?matter_id=${props.matterId}`
@@ -349,6 +356,8 @@ const fetchAssignedLawyers = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -376,7 +385,7 @@ const submitAssignLawyer = async () => {
     });
     return;
   }
-
+  loading.value = true;
   try {
     const assignLawyers = [];
     if (form.responsibleSolicitor_id) {
@@ -449,6 +458,8 @@ const submitAssignLawyer = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 

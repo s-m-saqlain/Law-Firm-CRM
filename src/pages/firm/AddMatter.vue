@@ -1,9 +1,10 @@
 <template>
   <div>
+    <LoadingSpinner :is-loading="loading" />
     <h1 class="text-2xl font-bold text-zinc-800">Add Matter</h1>
-    <div class="border-b border-zinc-200"></div>
+    <div class="border-b border-zinc-200 my-3"></div>
 
-    <main class="min-h-screen bg-zinc-50 text-zinc-900 rounded-lg mt-12">
+    <main class="min-h-screen bg-zinc-50 text-zinc-900 rounded-lg">
       <section class="mx-auto w-full max-w-6xl px-4 py-2">
         <div class="mt-4 grid grid-cols-1 gap-5 md:grid-cols-[280px,1fr]">
           <aside
@@ -385,9 +386,12 @@ import AssignLawyer from "../../components/Modal/Firm/Matters/AssignLawyer.vue";
 import BillingPreference from "../../components/Modal/Firm/Matters/BillingPreference.vue";
 import TaskLists from "../../components/Modal/Firm/Matters/TaskLists.vue";
 import DocumentFolders from "../../components/Modal/Firm/Matters/DocumentFolders.vue";
+import LoadingSpinner from "../../components/LoadingSpinner.vue";
 
 const router = useRouter();
 const route = useRoute();
+
+const loading = ref(false);
 
 const steps = [
   "Matter Details",
@@ -437,6 +441,7 @@ const selectedArea = ref(null);
 const areas = ref([]);
 
 const fetchClients = async (query = "") => {
+  loading.value = true;
   try {
     const url = query
       ? `/api/firm_side/contact-manage/search-contact/?query=${encodeURIComponent(
@@ -472,6 +477,8 @@ const fetchClients = async (query = "") => {
       confirmButtonColor: "#18181b",
     });
     clients.value = [];
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -487,6 +494,7 @@ const getRandomColor = () => {
 };
 
 const fetchPracticingAreas = async () => {
+  loading.value = true;
   try {
     const response = await api.get(
       "/api/firm_side/matter/dashboard/get_practicing_area/"
@@ -508,10 +516,13 @@ const fetchPracticingAreas = async () => {
       icon: "error",
       confirmButtonColor: "#18181b",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
 const fetchMatterDetails = async (id) => {
+  loading.value = true;
   try {
     const response = await api.get(
       `/api/firm_side/matter/creation/retrieve-matter-info/?matter_id=${id}`
@@ -558,6 +569,8 @@ const fetchMatterDetails = async (id) => {
       icon: "error",
       confirmButtonColor: "#18181b",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -716,6 +729,7 @@ const submitMatter = async () => {
   if (!validateForm()) {
     return;
   }
+  loading.value = true;
 
   try {
     const payload = {
@@ -785,6 +799,8 @@ const submitMatter = async () => {
       icon: "error",
       confirmButtonColor: "#18181b",
     });
+  } finally {
+    loading.value = false;
   }
 };
 

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <LoadingSpinner :is-loading="loading" />
     <div class="flex justify-between items-center">
       <h2 class="mb-4 text-lg font-bold text-zinc-800">Document Folders</h2>
       <div>
@@ -159,6 +160,7 @@
 import { ref, computed, onMounted } from "vue";
 import Swal from "sweetalert2";
 import api from "../../../../services/auth";
+import LoadingSpinner from "../../../../components/LoadingSpinner.vue";
 
 const props = defineProps({
   matterId: {
@@ -168,6 +170,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["go-back", "save-and-next"]);
+const loading = ref(false);
 
 const folderRows = ref([]);
 
@@ -179,6 +182,7 @@ const disabledRows = computed(() =>
 );
 
 const fetchCategories = async () => {
+  loading.value = true;
   try {
     const response = await api.get(
       "/api/firm_side/matter/document-folders/retrieve-folder-category/"
@@ -212,10 +216,13 @@ const fetchCategories = async () => {
       color: "black",
     });
     return [];
+  } finally {
+    loading.value = false;
   }
 };
 
 const fetchExistingFolders = async () => {
+  loading.value = true;
   try {
     const response = await api.get(
       `/api/firm_side/matter/creation/retrieve-document-folder/?matter_id=${props.matterId}`
@@ -242,6 +249,8 @@ const fetchExistingFolders = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -274,6 +283,7 @@ const saveAndNext = async () => {
   const validRows = enabledRows.value.filter(
     (row) => row.folderName.trim() && row.selectedCategory
   );
+  loading.value = true;
 
   try {
     const payload = {
@@ -333,6 +343,8 @@ const saveAndNext = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <LoadingSpinner :is-loading="loading" />
     <h2 class="mb-4 text-lg font-bold text-zinc-800">Task Lists</h2>
     <div class="grid grid-cols-1 gap-5">
       <p
@@ -111,6 +112,7 @@
 import { ref, onMounted } from "vue";
 import api from "../../../../services/auth";
 import Swal from "sweetalert2";
+import LoadingSpinner from "../../../../components/LoadingSpinner.vue";
 
 const props = defineProps({
   matterId: {
@@ -120,11 +122,13 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["go-back", "save-and-next"]);
+const loading = ref(false);
 
 const taskListDropdowns = ref([]);
 const isNotifyAssignees = ref(false);
 
 const fetchTaskLists = async (index, query = "") => {
+  loading.value = true;
   try {
     const url = `/api/firm_side/task/list-manage/filter?page=1&page_size=10${
       query ? `&title=${encodeURIComponent(query)}` : ""
@@ -162,10 +166,13 @@ const fetchTaskLists = async (index, query = "") => {
     });
     taskListDropdowns.value[index].taskLists = [];
     taskListDropdowns.value[index].filteredTaskLists = [];
+  } finally {
+    loading.value = false;
   }
 };
 
 const fetchAssignedTaskLists = async () => {
+  loading.value = true;
   try {
     const response = await api.get(
       `/api/firm_side/matter/creation/retrieve-task-list/?matter_id=${props.matterId}`
@@ -213,6 +220,8 @@ const fetchAssignedTaskLists = async () => {
         isDisabled: false,
       },
     ];
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -252,6 +261,7 @@ const saveAndNext = async () => {
   const taskListIds = taskListDropdowns.value
     .filter((dropdown) => dropdown.selected && !dropdown.isDisabled)
     .map((dropdown) => dropdown.selected.id);
+  loading.value = true;
 
   // if (taskListIds.length === 0) {
   //   Swal.fire({
@@ -319,6 +329,8 @@ const saveAndNext = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <LoadingSpinner :is-loading="loading" />
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-bold text-zinc-800">Related Contacts</h2>
       <div class="flex justify-between items-center gap-3">
@@ -189,6 +190,7 @@
 import { ref, computed, onMounted } from "vue";
 import Swal from "sweetalert2";
 import api from "../../../../services/auth";
+import LoadingSpinner from "../../../../components/LoadingSpinner.vue";
 
 const props = defineProps({
   matterId: {
@@ -198,6 +200,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["go-back", "save-and-next", "open-new-contact"]);
+const loading = ref(false);
 
 const contacts = ref([]);
 const contactOptions = ref([]);
@@ -219,6 +222,7 @@ const getRandomColor = () => {
 };
 
 const fetchContacts = async (query = "", index) => {
+  loading.value = true;
   try {
     const url = `/api/firm_side/matter/creation/search-contacts-with-matter-info?matter_id=${
       props.matterId
@@ -265,10 +269,13 @@ const fetchContacts = async (query = "", index) => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
 const fetchRelatedContacts = async () => {
+  loading.value = true;
   try {
     const response = await api.get(
       `/api/firm_side/matter/creation/retrieve-related-contact/?matter_id=${props.matterId}`
@@ -284,9 +291,7 @@ const fetchRelatedContacts = async () => {
         const info = contact.contact_info;
         return {
           id: info.id,
-          name:
-            info.full_name ||
-            `${info.first_name || ""} ${info.last_name || ""}`.trim(),
+          name: `${info.first_name || ""} ${info.last_name || ""}`.trim(),
           get_role_display: info.get_role_display || "Person",
           email: info.email || "",
           phone_number: info.phone_number || "",
@@ -330,6 +335,8 @@ const fetchRelatedContacts = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -397,7 +404,7 @@ const handleNewContact = (index) => {
   emit("open-new-contact");
 };
 
-const handleContactAdded = (newContact) => {
+const handleContactAdded = async (newContact) => {
   const contact = {
     id: newContact.id,
     name: `${newContact.first_name || ""} ${newContact.last_name || ""}`.trim(),
@@ -409,11 +416,12 @@ const handleContactAdded = (newContact) => {
     color: getRandomColor(),
   };
   contactOptions.value.push(contact);
-  if (newContactIndex.value !== null) {
-    selectedContacts.value[newContactIndex.value] = contact;
-    contacts.value[newContactIndex.value].contact_id = contact.id;
-    validateField(newContactIndex.value);
-  }
+  // if (newContactIndex.value !== null) {
+  //   selectedContacts.value[newContactIndex.value] = contact;
+  //   contacts.value[newContactIndex.value].contact_id = contact.id;
+  //   validateField(newContactIndex.value);
+  // }
+  await fetchContacts("", newContactIndex.value);
   newContactIndex.value = null;
 };
 
@@ -448,7 +456,7 @@ const saveAndNext = async () => {
     });
     return;
   }
-
+  loading.value = true;
   try {
     const payload = {
       matter_id: props.matterId,
@@ -490,6 +498,8 @@ const saveAndNext = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 

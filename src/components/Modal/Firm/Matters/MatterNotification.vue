@@ -1,5 +1,6 @@
 <template>
   <div>
+    <LoadingSpinner :is-loading="loading" />
     <h2 class="mb-4 text-lg font-bold text-zinc-800">Matter Notification</h2>
     <div class="grid grid-cols-1 gap-5">
       <p
@@ -138,6 +139,7 @@
 import { ref, computed, onMounted } from "vue";
 import Swal from "sweetalert2";
 import api from "../../../../services/auth";
+import LoadingSpinner from "../../../../components/LoadingSpinner.vue";
 
 const props = defineProps({
   matterId: {
@@ -147,6 +149,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["go-back", "save-and-next"]);
+const loading = ref(false);
 
 const dropdownOpen = ref(false);
 const searchQuery = ref("");
@@ -155,6 +158,7 @@ const selectedLawyers = ref([]);
 const errors = ref({ firmUsers: "" });
 
 const fetchLawyers = async () => {
+  loading.value = true;
   try {
     const response = await api.get(
       "/api/firm_side/lawyer_manage/get_my_lawyers/"
@@ -195,10 +199,13 @@ const fetchLawyers = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
 const fetchAssignedLawyerAccess = async () => {
+  loading.value = true;
   try {
     const response = await api.get(
       `/api/firm_side/matter/creation/retrieve-lawyer-access/?matter_id=${props.matterId}`
@@ -250,6 +257,8 @@ const fetchAssignedLawyerAccess = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -321,7 +330,7 @@ const submitFirmUsers = async () => {
     });
     return;
   }
-
+  loading.value = true;
   try {
     const payload = {
       matter_id: props.matterId,
@@ -377,6 +386,8 @@ const submitFirmUsers = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 

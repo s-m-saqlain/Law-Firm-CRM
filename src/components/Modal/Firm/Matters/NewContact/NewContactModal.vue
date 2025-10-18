@@ -3,6 +3,7 @@
     v-if="isOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
   >
+    <LoadingSpinner :is-loading="loading" />
     <div class="bg-white rounded-lg w-full max-w-md max-h-[80vh] flex flex-col">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold text-zinc-800 p-4">Add New Contact</h2>
@@ -231,9 +232,10 @@
 </template>
 
 <script setup>
-import { reactive, computed } from "vue";
+import { ref, reactive, computed } from "vue";
 import Swal from "sweetalert2";
 import api from "../../../../../services/auth";
+import LoadingSpinner from "../../../../../components/LoadingSpinner.vue";
 
 defineProps({
   isOpen: {
@@ -243,6 +245,8 @@ defineProps({
 });
 
 const emit = defineEmits(["close", "contact-added"]);
+
+const loading = ref(false);
 
 const form = reactive({
   contactType: "Person",
@@ -367,6 +371,7 @@ const submitContact = async () => {
   if (!validateForm()) {
     return;
   }
+  loading.value = true;
 
   try {
     const payload = {
@@ -430,6 +435,8 @@ const submitContact = async () => {
       icon: "error",
       confirmButtonColor: "#18181b",
     });
+  } finally {
+    loading.value = false;
   }
 };
 

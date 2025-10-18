@@ -1,5 +1,6 @@
 <template>
   <div>
+    <LoadingSpinner :is-loading="loading" />
     <h2 class="mb-4 text-lg font-bold text-zinc-800">Billing Preference</h2>
     <div class="grid grid-cols-1 gap-5">
       <p
@@ -270,6 +271,7 @@ import { ref, reactive, onMounted } from "vue";
 import Swal from "sweetalert2";
 import api from "../../../../services/auth";
 import NewContactModal from "../../../../components/Modal/Firm/Matters/NewContact/NewContactModal.vue";
+import LoadingSpinner from "../../../../components/LoadingSpinner.vue";
 
 const props = defineProps({
   matterId: {
@@ -279,6 +281,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["go-back", "save-and-next"]);
+const loading = ref(false);
 
 const form = reactive({
   billingMethod: null,
@@ -305,6 +308,7 @@ const isNewContactModalOpen = ref(false);
 const activePayerIndex = ref(null);
 
 const fetchBillingPreferences = async () => {
+  loading.value = true;
   try {
     const billingResponse = await api.get(
       `/api/firm_side/matter/creation/retrieve-billing-preference/?matter_id=${props.matterId}`
@@ -403,10 +407,13 @@ const fetchBillingPreferences = async () => {
       icon: "error",
       confirmButtonColor: "#18181b",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
 const fetchClients = async (index, query = "") => {
+  loading.value = true;
   try {
     const url = `/api/firm_side/matter/creation/search-contacts-with-matter-info/?matter_id=${
       props.matterId
@@ -447,6 +454,8 @@ const fetchClients = async (index, query = "") => {
       confirmButtonColor: "#18181b",
     });
     form.payers[index].filteredClients = [];
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -672,7 +681,7 @@ const saveAndNext = async () => {
     });
     return;
   }
-
+  loading.value = true;
   try {
     const payload = {
       matter_id: String(props.matterId),
@@ -754,6 +763,8 @@ const saveAndNext = async () => {
       background: "white",
       color: "black",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
