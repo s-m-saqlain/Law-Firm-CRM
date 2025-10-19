@@ -187,7 +187,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import Swal from "sweetalert2";
 import api from "../../services/auth";
 
@@ -210,16 +210,15 @@ const Toast = Swal.mixin({
 const fetchTasks = async () => {
   loading.value = true;
   try {
-    const res = await api.get(
-      `/api/firm_side/lawyer/matter_task/filtered_list/?page=${currentPage.value}`
-    );
+    const status =
+      activeTab.value === "outstanding" ? "OUTSTANDING" : "COMPLETED";
+    const url = `/api/firm_side/lawyer/matter_task/filtered_list/?page=${currentPage.value}&status_display=${status}`;
+
+    const res = await api.get(url);
 
     if (res.data.status) {
       tasks.value = res.data.data.results || res.data.data;
-      Toast.fire({
-        icon: "success",
-        title: "Tasks loaded successfully!",
-      });
+      console.log(tasks.value)
     } else {
       tasks.value = [];
       Toast.fire({
@@ -228,7 +227,6 @@ const fetchTasks = async () => {
       });
     }
   } catch (err) {
-    console.error("API error:", err);
     tasks.value = [];
     Toast.fire({
       icon: "error",
@@ -261,14 +259,12 @@ const formatDate = (date) => {
   });
 };
 
+watch(activeTab, () => {
+  currentPage.value = 1;
+  fetchTasks();
+});
+
 onMounted(() => {
   fetchTasks();
 });
 </script>
-
-<style scoped>
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-</style>
