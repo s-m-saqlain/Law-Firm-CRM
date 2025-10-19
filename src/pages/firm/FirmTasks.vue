@@ -1,11 +1,7 @@
 <template>
   <div class="p-6">
     <div class="flex justify-between items-center mb-4">
-      <h2
-        class="text-[14px] font-semibold Ascending (1, 2, 3, 4, 5, 6, 7, 8) [font-semibold text-[#155DFC]"
-      >
-        Tasks
-      </h2>
+      <h2 class="text-[14px] font-semibold text-[#155DFC]">Tasks</h2>
       <div class="flex space-x-2">
         <button class="bg-black text-white px-4 py-2 rounded">Tasks</button>
         <button class="bg-gray-100 text-black px-4 py-2 rounded border">
@@ -141,6 +137,7 @@
             <td class="p-3">
               <button
                 class="px-3 py-1 text-sm rounded-md border border-gray-300 bg-white hover:bg-gray-100 transition"
+                @click="markTaskAsCompleted(task.id)"
               >
                 Mark complete
               </button>
@@ -284,6 +281,36 @@ const fetchTasks = async () => {
     });
   } finally {
     loading.value = false;
+  }
+};
+
+const markTaskAsCompleted = async (taskId) => {
+  try {
+    const payload = {
+      task_id: taskId,
+    };
+    const res = await api.patch(
+      "/api/firm_side/lawyer/matter_task/mark-task-as-completed/",
+      payload
+    );
+
+    if (res.data.status) {
+      Toast.fire({
+        icon: "success",
+        title: "Task marked as completed!",
+      });
+      await fetchTasks();
+    } else {
+      Toast.fire({
+        icon: "error",
+        title: "Failed to mark task as completed!",
+      });
+    }
+  } catch (err) {
+    Toast.fire({
+      icon: "error",
+      title: "Error marking task as completed!",
+    });
   }
 };
 
