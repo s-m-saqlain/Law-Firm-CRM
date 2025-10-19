@@ -48,18 +48,46 @@
         </button>
       </div>
 
-      <input
-        type="date"
-        class="border rounded-md px-2 py-1 text-sm"
-        placeholder="From date"
-        v-model="fromDate"
-      />
-      <input
-        type="date"
-        class="border rounded-md px-2 py-1 text-sm"
-        placeholder="To date"
-        v-model="toDate"
-      />
+      <div class="relative flex items-center">
+        <input
+          type="date"
+          class="border rounded-md px-2 py-1 text-sm"
+          placeholder="From date"
+          v-model="fromDate"
+        />
+        <button
+          class="ml-2 text-gray-500"
+          :disabled="!fromDate"
+          @click="clearFromDate"
+          :class="{
+            'opacity-50 cursor-not-allowed': !fromDate,
+            'hover:text-red-500': fromDate,
+          }"
+        >
+          🗑️
+        </button>
+      </div>
+
+      <div class="relative flex items-center">
+        <input
+          type="date"
+          class="border rounded-md px-2 py-1 text-sm"
+          placeholder="To date"
+          v-model="toDate"
+        />
+        <button
+          class="ml-2 text-gray-500"
+          :disabled="!toDate"
+          @click="clearToDate"
+          :class="{
+            'opacity-50 cursor-not-allowed': !toDate,
+            'hover:text-red-500': toDate,
+          }"
+        >
+          🗑️
+        </button>
+      </div>
+
       <div class="relative">
         <input
           v-model="searchQuery"
@@ -279,6 +307,14 @@ const formatDate = (date) => {
     day: "2-digit",
     year: "numeric",
   });
+};
+
+const clearFromDate = () => {
+  fromDate.value = "";
+};
+
+const clearToDate = () => {
+  toDate.value = "";
 };
 
 watch([activeTab, fromDate, toDate, searchQuery, selectedPriority], () => {
