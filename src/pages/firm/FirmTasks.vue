@@ -1,7 +1,11 @@
 <template>
   <div class="p-6">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-[14px] font-semibold text-[#155DFC]">Tasks</h2>
+      <h2
+        class="text-[14px] font-semibold Ascending (1, 2, 3, 4, 5, 6, 7, 8) [font-semibold text-[#155DFC]"
+      >
+        Tasks
+      </h2>
       <div class="flex space-x-2">
         <button class="bg-black text-white px-4 py-2 rounded">Tasks</button>
         <button class="bg-gray-100 text-black px-4 py-2 rounded border">
@@ -48,11 +52,13 @@
         type="date"
         class="border rounded-md px-2 py-1 text-sm"
         placeholder="From date"
+        v-model="fromDate"
       />
       <input
         type="date"
         class="border rounded-md px-2 py-1 text-sm"
         placeholder="To date"
+        v-model="toDate"
       />
       <div class="relative">
         <input
@@ -196,6 +202,9 @@ const loading = ref(false);
 const currentPage = ref(1);
 const selectedPriority = ref("All Priorities");
 const activeTab = ref("outstanding");
+const fromDate = ref("");
+const toDate = ref("");
+const searchQuery = ref("");
 
 const Toast = Swal.mixin({
   toast: true,
@@ -212,13 +221,25 @@ const fetchTasks = async () => {
   try {
     const status =
       activeTab.value === "outstanding" ? "OUTSTANDING" : "COMPLETED";
-    const url = `/api/firm_side/lawyer/matter_task/filtered_list/?page=${currentPage.value}&status_display=${status}`;
+    let url = `/api/firm_side/lawyer/matter_task/filtered_list/?page=${currentPage.value}&status_display=${status}`;
+
+    if (fromDate.value) {
+      url += `&from_date=${fromDate.value}`;
+    }
+    if (toDate.value) {
+      url += `&to_date=${toDate.value}`;
+    }
+    if (searchQuery.value) {
+      url += `&search=${encodeURIComponent(searchQuery.value)}`;
+    }
+    if (selectedPriority.value !== "All Priorities") {
+      url += `&priority=${encodeURIComponent(selectedPriority.value)}`;
+    }
 
     const res = await api.get(url);
 
     if (res.data.status) {
       tasks.value = res.data.data.results || res.data.data;
-      console.log(tasks.value)
     } else {
       tasks.value = [];
       Toast.fire({
@@ -259,7 +280,7 @@ const formatDate = (date) => {
   });
 };
 
-watch(activeTab, () => {
+watch([activeTab, fromDate, toDate, searchQuery, selectedPriority], () => {
   currentPage.value = 1;
   fetchTasks();
 });
