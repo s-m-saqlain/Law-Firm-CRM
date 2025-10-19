@@ -78,9 +78,9 @@
         v-model="selectedPriority"
       >
         <option>All Priorities</option>
-        <option>High Priority</option>
-        <option>Medium Priority</option>
-        <option>Low Priority</option>
+        <option>HIGH</option>
+        <option>MEDIUM</option>
+        <option>LOW</option>
       </select>
     </div>
 
@@ -230,7 +230,7 @@ const fetchTasks = async () => {
       url += `&to_date=${toDate.value}`;
     }
     if (searchQuery.value) {
-      url += `&search=${encodeURIComponent(searchQuery.value)}`;
+      url += `&status=${encodeURIComponent(searchQuery.value)}`;
     }
     if (selectedPriority.value !== "All Priorities") {
       url += `&priority=${encodeURIComponent(selectedPriority.value)}`;
@@ -240,6 +240,7 @@ const fetchTasks = async () => {
 
     if (res.data.status) {
       tasks.value = res.data.data.results || res.data.data;
+      console.log(tasks);
     } else {
       tasks.value = [];
       Toast.fire({
