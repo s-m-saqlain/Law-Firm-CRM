@@ -15,24 +15,24 @@
         </div>
 
         <nav class="flex flex-col p-4 space-y-3 text-sm">
-          <RouterLink
-            v-for="item in activeNavItems"
-            :key="item.name"
-            :to="`${basePath}/${item.to}`"
-            class="relative flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-800 transition"
-            :class="{ 'bg-gray-800': isActive(`${basePath}/${item.to}`) }"
-          >
-            <component :is="item.icon" class="w-4 h-4" />
-            <span class="flex-1">{{ item.name }}</span>
+  <RouterLink
+    v-for="item in activeNavItems"
+    :key="item.name"
+    :to="`${basePath}/${item.to}`"
+    class="relative flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-800 transition"
+    :class="{ 'bg-gray-800': isActive(`${basePath}/${item.to}`) }"
+  >
+    <component :is="item.icon" class="w-4 h-4" />
+    <span class="flex-1">{{ item.name }}</span>
 
-            <span
-              v-if="item.name === 'Communication' && totalUnreadCount > 0"
-              class="flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-sm animate-pulse"
-            >
-              {{ totalUnreadCount > 99 ? "99+" : totalUnreadCount }}
-            </span>
-          </RouterLink>
-        </nav>
+    <span
+      v-if="item.name === 'Communication' && item.count > 0"
+      class="flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-sm animate-pulse"
+    >
+      {{ item.count > 99 ? "99+" : item.count }}
+    </span>
+  </RouterLink>
+</nav>
       </div>
 
       <div class="border-t border-gray-700 p-4 relative">
@@ -131,6 +131,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute, RouterLink, RouterView } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
+import { useSocketStore } from "../../stores/socket";
 import {
   LayoutDashboard,
   FileText,
@@ -144,8 +145,9 @@ import api from "../../services/auth.js";
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const socketStore = useSocketStore();
 
-const totalUnreadCount = ref(0);
+// const totalUnreadCount = ref(0);
 const basePath = computed(() => `/${route.path.split("/")[1]}`);
 const dropdownOpen = ref(false);
 
@@ -156,7 +158,8 @@ const fetchUnreadCount = async () => {
       "/api/chat/firm-chat/get-genral-unread-count/",
     );
     if (response.data.status) {
-      totalUnreadCount.value = response.data.total_unread_count;
+      socketStore.setUnreadCount(response.data.total_unread_count);
+      // totalUnreadCount.value = response.data.total_unread_count;
     }
   } catch (error) {
     console.error("Error fetching unread count:", error);
@@ -203,7 +206,7 @@ const activeNavItems = computed(() => {
 
   return items.map((item) => {
     if (item.name === "Communication") {
-      return { ...item, count: totalUnreadCount.value };
+      return { ...item, count: socketStore.unreadCount };
     }
     return item;
   });
@@ -242,9 +245,9 @@ function goToUpdateProfile() {
 }
 
 onMounted(async () => {
-  fetchUnreadCount(); // Pehli dafa load hone par hit
-  authStore.initializeAuth();
+  authStore.initializeAuth(); // Ye socket connect kar dega agar token hoga
   await authStore.getProfile();
+  fetchUnreadCount(); // Initial value laane ke liye
 });
 </script>
 
