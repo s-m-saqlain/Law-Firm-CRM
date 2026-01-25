@@ -3,14 +3,14 @@ import { useAuthStore } from "../stores/auth";
 import DashboardLayout from "../components/layout/DashboardLayout.vue";
 import Login from "../pages/Login.vue";
 import SuperAdminDashboard from "../pages/superadmin/Dashboard.vue";
-import SuperAdminNotification from "../pages/superadmin/Notification.vue";
+import SuperAdminCommunication from "../pages/superadmin/Communication.vue";
 import SuperAdminAgencies from "../pages/superadmin/Agencies.vue";
 import SuperAdminAnalytics from "../pages/superadmin/Analytics.vue";
 import SuperAdminPackages from "../pages/superadmin/Packages.vue";
 import SuperAdminSettings from "../pages/superadmin/Settings.vue";
 
 import FirmDashboard from "../pages/firm/Dashboard.vue";
-import FirmNotification from "../pages/firm/FrimNotification.vue";
+import FirmCommunication from "../pages/firm/FrimCommunication.vue";
 import FirmSubscription from "../pages/firm/FirmSubscription.vue";
 import FirmLawyer from "../pages/firm/FirmLawyer.vue";
 import FirmAccount from "../pages/firm/FirmAccount.vue";
@@ -21,7 +21,7 @@ import FirmClients from "../pages/firm/FirmClients.vue";
 import AddMatter from "../pages/firm/AddMatter.vue";
 
 import LawyerDashboard from "../pages/lawyer/Dashboard.vue";
-import LawyerNotification from "../pages/lawyer/LawyerNotification.vue";
+import LawyerCommunication from "../pages/lawyer/LawyerCommunication.vue";
 import LawyerMatters from "../pages/lawyer/Matters.vue";
 import LawyerDocuments from "../pages/lawyer/Documents.vue";
 import LawyerTasks from "../pages/lawyer/Tasks.vue";
@@ -43,7 +43,7 @@ const routes = [
     meta: { requiresAuth: true, role: "Super Admin" },
     children: [
       { path: "dashboard", component: SuperAdminDashboard },
-      { path: "notification", component: SuperAdminNotification },
+      { path: "communication", component: SuperAdminCommunication },
       { path: "firm", component: SuperAdminAgencies },
       { path: "analytics", component: SuperAdminAnalytics },
       { path: "packages", component: SuperAdminPackages },
@@ -68,7 +68,7 @@ const routes = [
     meta: { requiresAuth: true, role: "Law Firm" },
     children: [
       { path: "dashboard", component: FirmDashboard },
-      { path: "notification", component: FirmNotification },
+      { path: "communication", component: FirmCommunication },
       { path: "subscription", component: FirmSubscription },
       { path: "lawyer", component: FirmLawyer },
       { path: "account", component: FirmAccount },
@@ -98,7 +98,7 @@ const routes = [
     meta: { requiresAuth: true, role: "Lawyer" },
     children: [
       { path: "dashboard", component: LawyerDashboard },
-      { path: "notification", component: LawyerNotification },
+      { path: "communication", component: LawyerCommunication },
       { path: "matters", component: LawyerMatters },
       { path: "documents", component: LawyerDocuments },
       { path: "tasks", component: LawyerTasks },

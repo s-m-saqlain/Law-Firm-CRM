@@ -146,7 +146,7 @@ function toggleDropdown() {
 const navItems = {
   "Super Admin": [
     { name: "Dashboard", to: "dashboard", icon: LayoutDashboard },
-    { name: "Notification", to: "notification", icon: LayoutDashboard },
+    { name: "Communication", to: "communication", icon: LayoutDashboard },
     { name: "Firm", to: "firm", icon: FileText },
     { name: "Analytics", to: "analytics", icon: ClipboardList },
     { name: "Packages", to: "packages", icon: FileSignature },
@@ -154,7 +154,7 @@ const navItems = {
   ],
   "Law Firm": [
     { name: "Dashboard", to: "dashboard", icon: LayoutDashboard },
-    { name: "Notification", to: "notification", icon: LayoutDashboard },
+    { name: "Communication", to: "communication", icon: LayoutDashboard },
     { name: "Subscription", to: "subscription", icon: FileText },
     { name: "Lawyer", to: "lawyer", icon: File },
     { name: "Account", to: "account", icon: ClipboardList },
@@ -165,7 +165,7 @@ const navItems = {
   ],
   Lawyer: [
     { name: "Dashboard", to: "dashboard", icon: LayoutDashboard },
-    { name: "Notification", to: "notification", icon: LayoutDashboard },
+    { name: "Communication", to: "communication", icon: LayoutDashboard },
     { name: "Matters", to: "matters", icon: FileText },
     { name: "Documents", to: "documents", icon: File },
     { name: "Tasks", to: "tasks", icon: ClipboardList },
