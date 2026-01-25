@@ -3,14 +3,24 @@
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-[14px] font-semibold text-[#155DFC]">Tasks</h2>
       <div class="flex space-x-2">
-        <button class="bg-black text-white px-4 py-2 rounded">Tasks</button>
-        <button class="bg-gray-100 text-black px-4 py-2 rounded border">
+        <button
+          class="bg-black text-white text-sm font-semibold px-3 py-1 rounded"
+        >
+          Tasks
+        </button>
+        <button
+          class="bg-gray-100 text-black text-sm font-semibold px-3 py-1 rounded border"
+        >
           Task types
         </button>
-        <button class="bg-gray-100 text-black px-4 py-2 rounded border">
+        <button
+          class="bg-gray-100 text-black text-sm font-semibold px-3 py-1 rounded border"
+        >
           Task lists
         </button>
-        <button class="bg-gray-100 text-black px-4 py-2 rounded border">
+        <button
+          class="bg-gray-100 text-black text-sm font-semibold px-3 py-1 rounded border"
+        >
           New task
         </button>
       </div>
@@ -179,6 +189,7 @@
             <td class="p-3">
               <button
                 class="px-3 py-1 text-sm border border-blue-500 text-blue-500 rounded-md hover:bg-blue-50"
+                @click="openModal()"
               >
                 + Add Time
               </button>
@@ -214,6 +225,13 @@
         <div>Page {{ currentPage }} of — Showing {{ tasks.length }} tasks</div>
       </div>
     </div>
+    <AddTimeModal
+      :show="showModal"
+      :taskId="selectedTaskId"
+      :lawyers="lawyers"
+      @close="closeModal"
+      @save="saveTimeEntry"
+    />
   </div>
 </template>
 
@@ -221,6 +239,7 @@
 import { ref, onMounted, watch } from "vue";
 import Swal from "sweetalert2";
 import api from "../../services/auth";
+import AddTimeModal from "../../components/Modal/Firm/Task/AddTimeModal.vue";
 
 const tasks = ref([]);
 const loading = ref(false);
@@ -231,6 +250,13 @@ const fromDate = ref("");
 const toDate = ref("");
 const searchQuery = ref("");
 
+const showModal = ref(false);
+const selectedTaskId = ref("");
+const lawyers = ref([
+  { id: 1, name: "John Smith" },
+  { id: 2, name: "Sarah Johnson" },
+]);
+
 const Toast = Swal.mixin({
   toast: true,
   position: "bottom-end",
@@ -240,6 +266,23 @@ const Toast = Swal.mixin({
   background: "#fff",
   color: "#000",
 });
+
+const openModal = () => {
+  showModal.value = true;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+};
+
+const saveTimeEntry = (data) => {
+  console.log("Saved time entry:", data);
+  Toast.fire({
+    icon: "success",
+    title: "Time entry saved successfully!",
+  });
+  closeModal();
+};
 
 const fetchTasks = async () => {
   loading.value = true;

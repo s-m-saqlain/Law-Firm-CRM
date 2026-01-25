@@ -1,0 +1,295 @@
+theek hai ab eik kam krdo ke jb hum left me clcik krein tu uski api ke response id ko iswali api me lagado /api/chat/firm-chat/get-messages/?room_id=
+
+
+
+aur ye wali api hit krdo 
+
+
+
+iska response ye hai
+
+
+
+{
+
+    "status": true,
+
+    "message": "Messages fetched successfully",
+
+    "data": {
+
+        "page": 1,
+
+        "page_size": 100,
+
+        "has_next": false,
+
+        "has_previous": false,
+
+        "messages": [
+
+            {
+
+                "id": "c5280899-4982-4c55-8d57-650c1c8859a2",
+
+                "message_type": "Text",
+
+                "text": "saasas",
+
+                "created_at": "2026-01-25T16:45:12.193429Z",
+
+                "sender": "d98b6c45-a023-4533-a733-39b171995546",
+
+                "message_id": "c5280899-4982-4c55-8d57-650c1c8859a2",
+
+                "is_you": false,
+
+                "file": null,
+
+                "sender_image": "https://lawfirmdata.s3.amazonaws.com/user/profile/law_firm.jpeg?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=9DAsXbP4quMpXIS187sVgMMp4GE%3D&Expires=1769363112",
+
+                "sender_name": "User TechSolution",
+
+                "sender_role": "Law Firm"
+
+            },
+
+            {
+
+                "id": "f7a73808-e6ac-4257-9f95-2459177b4d61",
+
+                "message_type": "Text",
+
+                "text": "saass",
+
+                "created_at": "2026-01-25T16:45:12.195256Z",
+
+                "sender": "d98b6c45-a023-4533-a733-39b171995546",
+
+                "message_id": "f7a73808-e6ac-4257-9f95-2459177b4d61",
+
+                "is_you": false,
+
+                "file": null,
+
+                "sender_image": "https://lawfirmdata.s3.amazonaws.com/user/profile/law_firm.jpeg?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=9DAsXbP4quMpXIS187sVgMMp4GE%3D&Expires=1769363112",
+
+                "sender_name": "User TechSolution",
+
+                "sender_role": "Law Firm"
+
+            },
+
+            {
+
+                "id": "140e64c3-d1d7-4385-86e6-c354357809d2",
+
+                "message_type": "Text",
+
+                "text": "as",
+
+                "created_at": "2026-01-25T16:45:12.196443Z",
+
+                "sender": "0dc25f45-3c7b-4356-a9dd-a3f31680b1af",
+
+                "message_id": "140e64c3-d1d7-4385-86e6-c354357809d2",
+
+                "is_you": false,
+
+                "file": null,
+
+                "sender_image": "https://lawfirmdata.s3.amazonaws.com/user/profile/professional-male-avatar-clear-face-600nw-2704457945.webp?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=kjqExzcbUk8d9KEr23Ob4u%2BGmOM%3D&Expires=1769363112",
+
+                "sender_name": "Khan",
+
+                "sender_role": "Client"
+
+            },
+
+            {
+
+                "id": "5c2dbe79-8a80-43ce-8f77-39c53dd035b1",
+
+                "message_type": "Text",
+
+                "text": "jhgjh",
+
+                "created_at": "2026-01-25T16:45:12.199408Z",
+
+                "sender": "d98b6c45-a023-4533-a733-39b171995546",
+
+                "message_id": "5c2dbe79-8a80-43ce-8f77-39c53dd035b1",
+
+                "is_you": false,
+
+                "file": null,
+
+                "sender_image": "https://lawfirmdata.s3.amazonaws.com/user/profile/law_firm.jpeg?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=9DAsXbP4quMpXIS187sVgMMp4GE%3D&Expires=1769363112",
+
+                "sender_name": "User TechSolution",
+
+                "sender_role": "Law Firm"
+
+            },
+
+            {
+
+                "id": "550ce58f-e7d1-462a-a950-bbcca43be8c6",
+
+                "message_type": "Text",
+
+                "text": "gfg",
+
+                "created_at": "2026-01-25T16:45:12.201140Z",
+
+                "sender": "d98b6c45-a023-4533-a733-39b171995546",
+
+                "message_id": "550ce58f-e7d1-462a-a950-bbcca43be8c6",
+
+                "is_you": false,
+
+                "file": null,
+
+                "sender_image": "https://lawfirmdata.s3.amazonaws.com/user/profile/law_firm.jpeg?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=9DAsXbP4quMpXIS187sVgMMp4GE%3D&Expires=1769363112",
+
+                "sender_name": "User TechSolution",
+
+                "sender_role": "Law Firm"
+
+            },
+
+            {
+
+                "id": "d7028b5b-1822-4a77-8562-3958969155d9",
+
+                "message_type": "Text",
+
+                "text": "???",
+
+                "created_at": "2026-01-25T16:45:12.203404Z",
+
+                "sender": "d98b6c45-a023-4533-a733-39b171995546",
+
+                "message_id": "d7028b5b-1822-4a77-8562-3958969155d9",
+
+                "is_you": false,
+
+                "file": null,
+
+                "sender_image": "https://lawfirmdata.s3.amazonaws.com/user/profile/law_firm.jpeg?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=9DAsXbP4quMpXIS187sVgMMp4GE%3D&Expires=1769363112",
+
+                "sender_name": "User TechSolution",
+
+                "sender_role": "Law Firm"
+
+            },
+
+            {
+
+                "id": "be5c1d2c-8eae-4559-90d4-c0d098991bbd",
+
+                "message_type": "Text",
+
+                "text": "kaha ho",
+
+                "created_at": "2026-01-25T16:45:12.204971Z",
+
+                "sender": "0dc25f45-3c7b-4356-a9dd-a3f31680b1af",
+
+                "message_id": "be5c1d2c-8eae-4559-90d4-c0d098991bbd",
+
+                "is_you": false,
+
+                "file": null,
+
+                "sender_image": "https://lawfirmdata.s3.amazonaws.com/user/profile/professional-male-avatar-clear-face-600nw-2704457945.webp?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=kjqExzcbUk8d9KEr23Ob4u%2BGmOM%3D&Expires=1769363112",
+
+                "sender_name": "Khan",
+
+                "sender_role": "Client"
+
+            },
+
+            {
+
+                "id": "48bb0d3a-ba26-4b65-9020-92aabc0308e9",
+
+                "message_type": "Text",
+
+                "text": "hello ?????????????",
+
+                "created_at": "2026-01-25T16:45:12.206828Z",
+
+                "sender": "0dc25f45-3c7b-4356-a9dd-a3f31680b1af",
+
+                "message_id": "48bb0d3a-ba26-4b65-9020-92aabc0308e9",
+
+                "is_you": false,
+
+                "file": null,
+
+                "sender_image": "https://lawfirmdata.s3.amazonaws.com/user/profile/professional-male-avatar-clear-face-600nw-2704457945.webp?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=kjqExzcbUk8d9KEr23Ob4u%2BGmOM%3D&Expires=1769363112",
+
+                "sender_name": "Khan",
+
+                "sender_role": "Client"
+
+            },
+
+            {
+
+                "id": "4826eb95-1db1-4b7d-8f91-a4a17292ffbd",
+
+                "message_type": "Text",
+
+                "text": "aja",
+
+                "created_at": "2026-01-25T16:45:12.207883Z",
+
+                "sender": "0dc25f45-3c7b-4356-a9dd-a3f31680b1af",
+
+                "message_id": "4826eb95-1db1-4b7d-8f91-a4a17292ffbd",
+
+                "is_you": false,
+
+                "file": null,
+
+                "sender_image": "https://lawfirmdata.s3.amazonaws.com/user/profile/professional-male-avatar-clear-face-600nw-2704457945.webp?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=kjqExzcbUk8d9KEr23Ob4u%2BGmOM%3D&Expires=1769363112",
+
+                "sender_name": "Khan",
+
+                "sender_role": "Client"
+
+            },
+
+            {
+
+                "id": "69786218-8a89-4631-87ba-fc9e3230750e",
+
+                "message_type": "Text",
+
+                "text": "Kaha ho",
+
+                "created_at": "2026-01-25T16:45:12.209031Z",
+
+                "sender": "0dc25f45-3c7b-4356-a9dd-a3f31680b1af",
+
+                "message_id": "69786218-8a89-4631-87ba-fc9e3230750e",
+
+                "is_you": false,
+
+                "file": null,
+
+                "sender_image": "https://lawfirmdata.s3.amazonaws.com/user/profile/professional-male-avatar-clear-face-600nw-2704457945.webp?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=kjqExzcbUk8d9KEr23Ob4u%2BGmOM%3D&Expires=1769363112",
+
+                "sender_name": "Khan",
+
+                "sender_role": "Client"
+
+            }
+
+        ]
+
+    }
+
+}
