@@ -19,11 +19,18 @@
             v-for="item in activeNavItems"
             :key="item.name"
             :to="`${basePath}/${item.to}`"
-            class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-800 transition"
+            class="relative flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-800 transition"
             :class="{ 'bg-gray-800': isActive(`${basePath}/${item.to}`) }"
           >
             <component :is="item.icon" class="w-4 h-4" />
-            <span>{{ item.name }}</span>
+            <span class="flex-1">{{ item.name }}</span>
+
+            <span
+              v-if="item.name === 'Communication' && totalUnreadCount > 0"
+              class="flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-sm animate-pulse"
+            >
+              {{ totalUnreadCount > 99 ? "99+" : totalUnreadCount }}
+            </span>
           </RouterLink>
         </nav>
       </div>
@@ -132,12 +139,29 @@ import {
   FileSignature,
 } from "lucide-vue-next";
 
+import api from "../../services/auth.js";
+
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 
+const totalUnreadCount = ref(0);
 const basePath = computed(() => `/${route.path.split("/")[1]}`);
 const dropdownOpen = ref(false);
+
+// --- API Logic (Sirf Ek Baar Rakhein) ---
+const fetchUnreadCount = async () => {
+  try {
+    const response = await api.get(
+      "/api/chat/firm-chat/get-genral-unread-count/",
+    );
+    if (response.data.status) {
+      totalUnreadCount.value = response.data.total_unread_count;
+    }
+  } catch (error) {
+    console.error("Error fetching unread count:", error);
+  }
+};
 
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
@@ -175,7 +199,14 @@ const navItems = {
 
 const activeNavItems = computed(() => {
   const role = authStore.userRole;
-  return navItems[role] || [];
+  const items = navItems[role] || [];
+
+  return items.map((item) => {
+    if (item.name === "Communication") {
+      return { ...item, count: totalUnreadCount.value };
+    }
+    return item;
+  });
 });
 
 function isActive(path) {
@@ -191,32 +222,27 @@ function logout() {
 function goToChangePassword() {
   dropdownOpen.value = false;
   const role = authStore.userRole;
-  if (role === "Super Admin") {
-    router.push("/super-admin/change-password");
-  } else if (role === "Law Firm") {
-    router.push("/firm/change-password");
-  } else if (role === "Lawyer") {
-    router.push("/lawyer/change-password");
-  } else {
-    router.push("/login");
-  }
+  const pathMap = {
+    "Super Admin": "/super-admin/change-password",
+    "Law Firm": "/firm/change-password",
+    Lawyer: "/lawyer/change-password",
+  };
+  router.push(pathMap[role] || "/login");
 }
 
 function goToUpdateProfile() {
   dropdownOpen.value = false;
   const role = authStore.userRole;
-  if (role === "Super Admin") {
-    router.push("/super-admin/update-profile");
-  } else if (role === "Law Firm") {
-    router.push("/firm/update-profile");
-  } else if (role === "Lawyer") {
-    router.push("/lawyer/update-profile");
-  } else {
-    router.push("/login");
-  }
+  const pathMap = {
+    "Super Admin": "/super-admin/update-profile",
+    "Law Firm": "/firm/update-profile",
+    Lawyer: "/lawyer/update-profile",
+  };
+  router.push(pathMap[role] || "/login");
 }
 
 onMounted(async () => {
+  fetchUnreadCount(); // Pehli dafa load hone par hit
   authStore.initializeAuth();
   await authStore.getProfile();
 });
