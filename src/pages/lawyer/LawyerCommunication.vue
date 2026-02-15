@@ -139,7 +139,7 @@ const loading = ref(true);
 const fetchChatRooms = async () => {
   try {
     const response = await api.get("/api/chat/firm-chat/filter-all-chatrooms/");
-    console.log(response)
+    console.log(response);
     if (response.data.status) {
       chatRooms.value = response.data.data;
     }

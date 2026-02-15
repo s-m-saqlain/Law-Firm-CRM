@@ -1,44 +1,57 @@
 <template>
-  <div class="flex h-screen bg-gray-100 font-sans h-[82.5vh]">
+  <div
+    class="flex h-screen bg-gray-100 font-sans h-[83vh] overflow-hidden rounded-3xl shadow-lg border border-gray-200"
+  >
     <aside
       class="w-80 bg-white border-r border-gray-200 hidden md:flex flex-col"
     >
-      <div class="p-4 bg-[#F1F1FC] rounded-tl-3xl">
+      <div
+        class="p-4 bg-[#F1F1FC] flex justify-between items-center rounded-tl-3xl"
+      >
         <h1 class="text-xl font-bold text-indigo-600">Messages</h1>
+        <span
+          v-if="loading"
+          class="text-[10px] text-gray-400 animate-pulse uppercase"
+          >Loading...</span
+        >
       </div>
 
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto bg-white">
         <div
           v-for="room in chatRooms"
           :key="room.id"
           @click="selectRoom(room)"
           :class="[
-            'p-5 cursor-pointer transition border-b border-gray-50 relative',
+            'p-5 cursor-pointer transition-all border-b border-gray-50 relative group',
             activeRoom?.id === room.id
-              ? 'bg-indigo-50'
+              ? 'bg-[#F8FAFC] border-l-4 border-indigo-600'
               : 'bg-white hover:bg-gray-50',
           ]"
         >
           <div class="flex justify-between items-center mb-1">
-            <span class="text-[11px] font-bold text-indigo-500 uppercase">
-              {{ room.matter_data.display_name.split(":")[0] }}
+            <span
+              class="text-[10px] font-bold text-indigo-500 uppercase tracking-tight"
+            >
+              {{ room.matter_data?.display_name?.split(":")[0] || "MATTER" }}
             </span>
             <span
               v-if="room.unread_messages_count > 0"
-              class="bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full"
+              class="bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md"
             >
               {{ room.unread_messages_count }}
             </span>
           </div>
-
-          <h3 class="text-sm font-bold text-slate-800 truncate">
-            {{ room.chat_title }}
-          </h3>
-          <p class="text-xs text-slate-400 italic truncate mt-0.5">
-            "{{ room.room_last_message }}"
-          </p>
-
-          <div class="flex justify-between items-center mt-3">
+          <div class="mb-3">
+            <h3 class="text-[13px] font-bold text-slate-800 truncate">
+              {{ room.chat_title }}
+            </h3>
+            <p
+              class="text-[11px] text-slate-400 italic truncate mt-0.5 font-medium"
+            >
+              "{{ room.room_last_message }}"
+            </p>
+          </div>
+          <div class="flex justify-between items-center mt-2">
             <div class="flex -space-x-2">
               <img
                 v-for="p in room.participants_details.slice(0, 3)"
@@ -48,19 +61,11 @@
               />
               <div
                 v-if="room.participants_count > 3"
-                class="h-7 w-7 rounded-full bg-gray-100 ring-2 ring-white flex items-center justify-center text-[10px] font-bold text-gray-500"
+                class="h-7 w-7 rounded-full bg-slate-100 ring-2 ring-white flex items-center justify-center text-[9px] font-bold text-slate-500"
               >
                 +{{ room.participants_count - 3 }}
               </div>
             </div>
-            <span class="text-[10px] text-slate-400 flex items-center">
-              <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
-                ></path>
-              </svg>
-              {{ room.participants_count }} Members
-            </span>
           </div>
         </div>
       </div>
@@ -69,79 +74,74 @@
     <main class="flex-1 flex flex-col min-w-0 bg-white">
       <header
         v-if="activeRoom"
-        class="p-[15px] border-b border-gray-100 flex items-center shadow-sm rounded-tr-3xl bg-white"
+        class="p-4 border-b border-gray-100 flex items-center bg-white shadow-sm z-10"
       >
-        <div
-          class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold"
-        >
-          {{ activeRoom.chat_title.charAt(0) }}
-        </div>
         <div class="ml-3">
-          <p class="text-sm font-bold text-gray-800">
+          <p class="text-sm font-bold text-slate-800">
             {{ activeRoom.chat_title }}
           </p>
-          <p class="text-[10px] text-green-500 flex items-center">
-            <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></span>
+          <div
+            class="flex items-center text-[10px] text-green-500 font-bold uppercase"
+          >
+            <span
+              class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"
+            ></span>
             Online
-          </p>
+          </div>
         </div>
       </header>
 
       <section
         ref="scrollContainer"
-        class="flex-1 overflow-y-auto p-6 space-y-6 bg-[#F8FAFC]"
+        class="flex-1 overflow-y-auto p-6 space-y-6 bg-[#F8FAFC] custom-scrollbar"
       >
         <div
           v-if="!activeRoom"
-          class="h-full flex items-center justify-center text-gray-400"
+          class="h-full flex flex-col items-center justify-center text-gray-400"
         >
-          Select a chat to start messaging
+          <p class="text-sm font-medium italic">
+            Select a conversation to start chatting
+          </p>
         </div>
 
         <div
           v-for="msg in messages"
           :key="msg.id"
           :class="[
-            'flex items-start gap-2',
+            'flex items-start gap-3',
             msg.is_you ? 'flex-row-reverse' : 'flex-row',
           ]"
         >
           <img
             :src="msg.sender_image"
-            class="w-8 h-8 rounded-full object-cover border border-gray-200 mt-1"
+            class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm mt-1"
           />
-
           <div
             :class="[
-              'flex flex-col max-w-[70%]',
+              'flex flex-col max-w-[75%]',
               msg.is_you ? 'items-end' : 'items-start',
             ]"
           >
             <span
-              class="text-[10px] font-bold text-gray-500 uppercase mb-1 px-1"
+              class="text-[10px] font-extrabold text-slate-500 uppercase mb-1 px-1"
+              >{{ msg.sender_name }}</span
             >
-              {{ msg.sender_name }}
-            </span>
-
             <div
               :class="[
-                'p-3 px-4 rounded-2xl shadow-sm text-sm relative',
+                'p-3 px-5 rounded-3xl shadow-sm text-[13px] font-medium',
                 msg.is_you
                   ? 'bg-indigo-600 text-white rounded-tr-none'
-                  : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none',
+                  : 'bg-white text-slate-800 border border-gray-100 rounded-tl-none',
               ]"
             >
               {{ msg.text }}
             </div>
-
-            <span class="text-[9px] text-gray-400 mt-1 uppercase">
-              {{
-                new Date(msg.created_at).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              }}
-            </span>
+            <span class="text-[9px] text-gray-400 mt-1.5 font-bold uppercase">{{
+              new Date(msg.created_at).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            }}</span>
           </div>
         </div>
       </section>
@@ -154,14 +154,13 @@
           <input
             v-model="newMessageText"
             type="text"
-            placeholder="Type your message here..."
-            class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2.5 placeholder-slate-400 font-medium"
+            placeholder="Type message..."
+            class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2.5 font-medium"
           />
-
           <button
             type="submit"
             :disabled="!newMessageText.trim() || isSending"
-            class="ml-2 bg-indigo-600 text-white p-2.5 rounded-full hover:bg-indigo-700 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition-transform active:scale-95 flex items-center justify-center"
+            class="ml-2 bg-indigo-600 text-white p-2.5 rounded-full hover:bg-indigo-700 shadow-lg disabled:opacity-40 transition-transform active:scale-95"
           >
             <svg
               v-if="!isSending"
@@ -173,7 +172,6 @@
                 d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
               />
             </svg>
-
             <div
               v-else
               class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
@@ -186,9 +184,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, onUnmounted } from "vue";
 import api from "../../services/auth.js";
+import { useSocketStore } from "../../stores/socket";
+import Swal from "sweetalert2"; // Notification ke liye
 
+// --- CONFIGURATION ---
+const socketStore = useSocketStore();
 const chatRooms = ref([]);
 const messages = ref([]);
 const activeRoom = ref(null);
@@ -198,6 +200,20 @@ const scrollContainer = ref(null);
 const newMessageText = ref("");
 const isSending = ref(false);
 
+// Toast Configuration
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  },
+});
+
+// --- API CALLS ---
 const fetchChatRooms = async () => {
   try {
     const response = await api.get("/api/chat/firm-chat/filter-all-chatrooms/");
@@ -205,7 +221,7 @@ const fetchChatRooms = async () => {
       chatRooms.value = response.data.data;
     }
   } catch (error) {
-    console.error("Error fetching chatrooms:", error);
+    console.error("Error fetching rooms:", error);
   } finally {
     loading.value = false;
   }
@@ -214,12 +230,20 @@ const fetchChatRooms = async () => {
 const selectRoom = async (room) => {
   activeRoom.value = room;
   messagesLoading.value = true;
+  messages.value = []; // Clear old messages
+
+  // ✅ 1. Emit Join Channel Event
+  socketStore.joinRoom(room.id);
+
+  // Unread count reset locally (UI trick)
+  room.unread_messages_count = 0;
+
   try {
     const response = await api.get(
       `/api/chat/firm-chat/get-messages/?room_id=${room.id}`,
     );
     if (response.data.status) {
-      messages.value = response.data.data.messages.reverse();
+      messages.value = response.data.data.messages.reverse(); // .reverse() agar zaroorat ho
       scrollToBottom();
     }
   } catch (error) {
@@ -229,20 +253,11 @@ const selectRoom = async (room) => {
   }
 };
 
-const scrollToBottom = () => {
-  nextTick(() => {
-    if (scrollContainer.value) {
-      scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
-    }
-  });
-};
-
 const handleSendMessage = async () => {
   const text = newMessageText.value.trim();
   if (!text || !activeRoom.value || isSending.value) return;
 
   isSending.value = true;
-
   const payload = {
     room: activeRoom.value.id,
     message_type: "Text",
@@ -254,20 +269,122 @@ const handleSendMessage = async () => {
       "/api/chat/firm-chat/send-message/",
       payload,
     );
-
     if (response.data.status) {
-      // messages.value.push(response.data.data);
-
+      // API se response aane par list me add karein
+      // Note: Agar socket 'new_message' khud bhej raha hai sender ko bhi,
+      // to yahan push karne ki zaroorat nahi hai (duplicate ho jayega).
+      // Filhal safety ke liye push kar rahe hain.
+      messages.value.push(response.data.data);
       newMessageText.value = "";
       scrollToBottom();
+
+      // Sidebar update
+      updateSidebarRoom(activeRoom.value.id, text, new Date());
     }
   } catch (error) {
-    console.error("Sending failed:", error);
-    alert("Message nahi bheja ja saka.");
+    console.error("Send error:", error);
   } finally {
     isSending.value = false;
   }
 };
 
-onMounted(fetchChatRooms);
+// --- REAL-TIME SOCKET LOGIC ---
+// --- REAL-TIME SOCKET LOGIC ---
+const setupSocketListeners = () => {
+  if (!socketStore.socket) return;
+
+  socketStore.socket.on("new_message", (data) => {
+    console.log("📩 New Message Recieved:", data);
+
+    const incomingRoomId = data.room_id || data.room;
+    const messageContent = data.message;
+
+    // 🔥 FIX: Check karein ke sender main khud to nahi hoon?
+    // Agar sender ID meri ID se match karti hai, to return kar jayen (Duplicate se bachne ke liye)
+    if (messageContent.sender === authStore.user?.id) {
+      return; 
+    }
+
+    // 🔥 FIX 2 (Safety): Agar message ID pehle se list mein hai to bhi ignore karein
+    if (messages.value.some(m => m.id === messageContent.id)) {
+      return;
+    }
+
+    // A. Agar user usi room me hai -> Append Message
+    if (activeRoom.value && activeRoom.value.id === incomingRoomId) {
+      messages.value.push(messageContent);
+      scrollToBottom();
+    } 
+    // B. Agar user kisi aur room me hai -> Show Notification
+    else {
+      Toast.fire({
+        icon: "info",
+        title: `New message from ${messageContent.sender_name || 'User'}`,
+        text: messageContent.text?.substring(0, 30) + "..."
+      });
+
+      // Sidebar count update
+      const roomIndex = chatRooms.value.findIndex(r => r.id === incomingRoomId);
+      if (roomIndex !== -1) {
+        chatRooms.value[roomIndex].unread_messages_count += 1;
+      }
+    }
+
+    // C. Sidebar Update (Room ko top par layein)
+    updateSidebarRoom(incomingRoomId, messageContent.text, messageContent.created_at);
+  });
+};
+
+// Helper to update sidebar list
+const updateSidebarRoom = (roomId, lastMessage, time) => {
+  const index = chatRooms.value.findIndex((r) => r.id === roomId);
+
+  if (index !== -1) {
+    // Room exist karta hai
+    const updatedRoom = { ...chatRooms.value[index] };
+    updatedRoom.room_last_message = lastMessage;
+    // updatedRoom.updated_at = time; // Sorting ke liye
+
+    // Remove from current position and add to top
+    chatRooms.value.splice(index, 1);
+    chatRooms.value.unshift(updatedRoom);
+  } else {
+    // Agar naya room hai jo list me nahi tha, to puri list refresh karein
+    fetchChatRooms();
+  }
+};
+
+// --- LIFECYCLE ---
+onMounted(() => {
+  fetchChatRooms();
+
+  // Socket listeners setup karein
+  if (socketStore.isConnected) {
+    setupSocketListeners();
+  } else {
+    // Agar socket abhi connect nahi hua to wait karein
+    const unwatch = socketStore.$subscribe((mutation, state) => {
+      if (state.isConnected) {
+        setupSocketListeners();
+        unwatch(); // Listener remove karein
+      }
+    });
+  }
+});
+
+onUnmounted(() => {
+  // Cleanup listeners to avoid duplicates
+  if (socketStore.socket) {
+    socketStore.socket.off("new_message");
+  }
+});
+
+// Helper: Scroll
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (scrollContainer.value) {
+      scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
+    }
+  });
+};
 </script>

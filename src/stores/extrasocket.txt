@@ -1,0 +1,617 @@
+ab eik kam kro ke mujy login ke bad foran socket connect krwana hai 
+
+
+
+socket ka base url
+
+wss://lawfirm-chatting.devssh.xyz
+
+
+
+header me token ki key me token rakhna hai 
+
+
+
+token aye ga login ke bad aur agr token nhi hai tu socket disconnect hojaye hr bar refresh me token hai tu socket connect hoajye aur agr token nhi hai tu socket dissconnect hojaye
+
+
+
+stores
+
+auth.js
+
+
+
+import { defineStore } from "pinia";
+
+import api from "../services/auth.js";
+
+import Cookies from "js-cookie";
+
+
+
+export const useAuthStore = defineStore("auth", {
+
+  state: () => ({
+
+    user: null,
+
+    accessToken: null,
+
+    refreshToken: null,
+
+  }),
+
+
+
+  getters: {
+
+    isAuthenticated: (state) => !!state.user,
+
+    userRole: (state) => state.user?.role || null,
+
+  },
+
+
+
+  actions: {
+
+    async login(email, password) {
+
+      try {
+
+        const response = await api.post("/api/auth/session/login/", {
+
+          email,
+
+          password,
+
+        });
+
+
+
+        if (response.data.status) {
+
+          const { access_token, refresh_token, data: user } = response.data;
+
+
+
+          this.user = user;
+
+          this.accessToken = access_token;
+
+          this.refreshToken = refresh_token;
+
+
+
+          console.log(access_token);
+
+
+
+          Cookies.set("access_token", access_token, {
+
+            secure: true,
+
+            sameSite: "Strict",
+
+          });
+
+          Cookies.set("refresh_token", refresh_token, {
+
+            secure: true,
+
+            sameSite: "Strict",
+
+          });
+
+          // Cookies.set("user", JSON.stringify(user), {
+
+          //   secure: true,
+
+          //   sameSite: "Strict",
+
+          // });
+
+
+
+          return response.data;
+
+        } else {
+
+          return response.data;
+
+        }
+
+      } catch (error) {
+
+        return {
+
+          status: false,
+
+          message:
+
+            error.response?.data?.message || "Unable to connect to the server.",
+
+        };
+
+      }
+
+    },
+
+
+
+    async getProfile() {
+
+      try {
+
+        const token = Cookies.get("access_token");
+
+
+
+        // const response = await api.get("/api/auth/session/get_profile/");
+
+        const response = await api.get("/api/auth/session/get_profile/", {
+
+          headers: {
+
+            Authorization: `Bearer ${token}`,
+
+          },
+
+        });
+
+        if (response.data.status) {
+
+          this.user = response.data.data;
+
+          Cookies.set("user", JSON.stringify(this.user), {
+
+            secure: true,
+
+            sameSite: "Strict",
+
+          });
+
+        }
+
+      } catch (error) {
+
+        console.error("Profile fetch error:", error);
+
+      }
+
+    },
+
+
+
+    logout() {
+
+      this.user = null;
+
+      this.accessToken = null;
+
+      this.refreshToken = null;
+
+
+
+      Cookies.remove("access_token");
+
+      Cookies.remove("refresh_token");
+
+      Cookies.remove("user");
+
+    },
+
+
+
+    initializeAuth() {
+
+      const token = Cookies.get("access_token");
+
+      const user = Cookies.get("user");
+
+      if (token && user) {
+
+        this.accessToken = token;
+
+        this.user = JSON.parse(user);
+
+        this.refreshToken = Cookies.get("refresh_token");
+
+      }
+
+    },
+
+  },
+
+});
+
+
+
+services
+
+
+
+auth.js
+
+
+
+import axios from "axios";
+
+import Cookies from "js-cookie";
+
+
+
+const api = axios.create({
+
+  baseURL: "https://law-firm.devssh.xyz",
+
+  withCredentials: true,
+
+});
+
+
+
+// api.interceptors.request.use((config) => {
+
+//   return config;
+
+// });
+
+
+
+api.interceptors.request.use(
+
+  (config) => {
+
+    const token = Cookies.get("access_token");
+
+
+
+    if (token) {
+
+      config.headers.Authorization = `Bearer ${token}`;
+
+    }
+
+
+
+    return config;
+
+  },
+
+  (error) => {
+
+    return Promise.reject(error);
+
+  },
+
+);
+
+
+
+export default api;
+
+
+
+
+
+login ki api ka response
+
+
+
+{
+
+    "status": true,
+
+    "message": "Login Successfully",
+
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjVlYWU2NThjLTgzMGYtNGZiYS1iOTVjLTdiZjU2MzNkYzgzZCIsImVtYWlsIjoiZGV2ZWxvcGVyLmhzeW5AZ21haWwuY29tIiwicm9sZSI6MiwiZXhwIjoxNzY5NDUyNzUzLCJpYXQiOjE3NjkzNjYzNTN9.PlgTP9Ln8l4IERWlb5i0D6Ofcarck1h1Opeao9fydbw",
+
+    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjVlYWU2NThjLTgzMGYtNGZiYS1iOTVjLTdiZjU2MzNkYzgzZCIsImVtYWlsIjoiZGV2ZWxvcGVyLmhzeW5AZ21haWwuY29tIiwicm9sZSI6MiwiZXhwIjoxNzY5OTcxMTUzLCJpYXQiOjE3NjkzNjYzNTN9.eATS5QZI9Bqa_d3tPUGd51inFEWDrTS3QXPVoLzqpmk",
+
+    "data": {
+
+        "id": "5eae658c-830f-4fba-b95c-7bf5633dc83d",
+
+        "first_name": "Developer-Hsyn",
+
+        "middle_name": null,
+
+        "last_name": "Hsyn",
+
+        "email": "developer.hsyn@gmail.com",
+
+        "mobile_number": "16265856545",
+
+        "role": "Lawyer",
+
+        "account_status": 1,
+
+        "profile_image": "https://lawfirmdata.s3.amazonaws.com/dummy/user.png?AWSAccessKeyId=AKIAUEHBYLFVX4DTTAB2&Signature=fN8ij2MHatnvWNadIDvLx1jXqtE%3D&Expires=1769369953",
+
+        "nylas_email": null,
+
+        "get_nylas_email_type_display": null,
+
+        "full_name": "Developer-Hsyn Hsyn"
+
+    }
+
+}
+
+
+
+
+
+login ki api hit
+
+
+
+async function onSubmit() {
+
+  loading.value = true;
+
+  try {
+
+    const response = await authStore.login(email.value, password.value);
+
+    if (response?.status) {
+
+      Toast.fire({
+
+        icon: "success",
+
+        title: "Signed in successfully",
+
+      });
+
+
+
+      const role = authStore.userRole;
+
+      if (role === "Lawyer") {
+
+        router.push("/lawyer/dashboard");
+
+      } else if (role === "Law Firm") {
+
+        router.push("/firm/dashboard");
+
+      } else if (role === "Super Admin") {
+
+        router.push("/super-admin/dashboard");
+
+      } else {
+
+        Toast.fire({
+
+          icon: "warning",
+
+          title: "Unknown user role",
+
+        });
+
+      }
+
+    } else {
+
+      Toast.fire({
+
+        icon: "error",
+
+        title:
+
+          response?.message ||
+
+          "Login failed! Please check your email or password.",
+
+      });
+
+    }
+
+  } catch (error) {
+
+    const apiError = response?.data?.message || "An unexpected error occurred.";
+
+    Toast.fire({
+
+      icon: "error",
+
+      title: apiError,
+
+    });
+
+  } finally {
+
+    loading.value = false;
+
+  }
+
+}
+
+
+
+
+
+___________________________________
+
+
+
+
+
+socket.io use hwa hwa hai backend me 
+
+
+
+ye backend ka code  hai websocket connection aur testing horhi hai
+
+
+
+import socketio
+
+from config import CHANNEL_NAME
+
+from helpers import generate_jwt_token
+
+
+
+# 1. Token Generate kro (Make sure Secret Key matches Server's .env)
+
+print("🔑 Generating Token...")
+
+YOUR_JWT_TOKEN_HERE = generate_jwt_token() 
+
+print(f"Token: {YOUR_JWT_TOKEN_HERE[:15]}... (Truncated)")
+
+
+
+# 2. Client Setup (No MsgPack for now)
+
+sio = socketio.Client()
+
+
+
+# --- EVENTS ---
+
+
+
+@sio.event
+
+def connect():
+
+    print("✅ Connected to Server!")
+
+    
+
+    # Connection bantay hi Channel Join ki request bhejo
+
+    channel_to_join = CHANNEL_NAME
+
+    print(f"➡️ Joining Channel: {channel_to_join}...")
+
+    
+
+    sio.emit('join_channel', {'channel_name': channel_to_join})
+
+    print(f"✅ Successfully Joined Channel: {channel_to_join}")
+
+
+
+
+
+@sio.event
+
+def new_message(data):
+
+    # Jab koi message ayega to yahan print hoga
+
+    print("\n📩 New Message Received:")
+
+    print(f"   Room: {data.get('room_id')}")
+
+    print(f"   Message: {data.get('message', {}).get('text')}")
+
+    print(f"   Message: {data.get('message')}")
+
+    print("-" * 30)
+
+
+
+
+
+@sio.event
+
+def new_message_notification(data):
+
+    print("\n🔔 Notification Popup Received:")
+
+    print(f"   Room: {data.get('room_id')}")
+
+    print(f"   Data: {data.get('message')}")
+
+    print("-" * 30)
+
+
+
+@sio.event
+
+def new_unread_message_count(data):
+
+    print("\n🔴 Unread Count Update:")
+
+    print(f"   New Count: {data.get('unread_count')}")
+
+    print("-" * 30)
+
+
+
+
+
+@sio.event
+
+def connect_error(data):
+
+    print(f"❌ Connection Failed: {data}")
+
+
+
+@sio.event
+
+def disconnect():
+
+    print("⚠️ Disconnected from server")
+
+
+
+# --- EXECUTION ---
+
+
+
+try:
+
+    print("⏳ Connecting to localhost:9009...")
+
+    sio.connect(
+
+        'http://localhost:9009', 
+
+        auth={'token': YOUR_JWT_TOKEN_HERE}
+
+    )
+
+    
+
+    # Script ko zinda rakhne k liye wait kro
+
+    sio.wait()
+
+
+
+except KeyboardInterrupt:
+
+    print("\n🛑 Stopping Client...")
+
+    sio.disconnect()
+
+    
+
+except Exception as e:
+
+    print(f"💥 Error: {e}")
+
+
+
+is tarah connect krna hai token ke through
+
+
+
+aur 50 sec bad isko emit krna hai heartbeat_global {} 
+
+taake online ka status maintain rhe
+
+
+
+aur isko on rakhna hai new_unread_message_count 
+
+{"unread_count" : 5} isme jo bhi data aye comunication ke tab me update krna hai

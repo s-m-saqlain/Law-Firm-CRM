@@ -58,6 +58,14 @@ export const useSocketStore = defineStore("socket", {
       });
     },
 
+    // ✅ New Action: Join Room
+    joinRoom(roomId) {
+      if (this.socket && this.isConnected) {
+        console.log(`➡️ Emitting join_channel for: ${roomId}`);
+        this.socket.emit("join_channel", { channel_name: roomId });
+      }
+    },
+
     disconnect() {
       if (this.socket) {
         this.socket.disconnect();
