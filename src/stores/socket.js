@@ -2,6 +2,19 @@
 import { defineStore } from "pinia";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
+import Swal from "sweetalert2";
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 4000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  },
+});
 
 export const useSocketStore = defineStore("socket", {
   state: () => ({
@@ -9,6 +22,7 @@ export const useSocketStore = defineStore("socket", {
     isConnected: false,
     unreadCount: 0, // Global state for unread count
     heartbeatInterval: null,
+    latestNotification: null,
   }),
 
   actions: {
@@ -55,6 +69,43 @@ export const useSocketStore = defineStore("socket", {
         if (data && typeof data.unread_count !== "undefined") {
           this.unreadCount = data.unread_count;
         }
+      });
+
+      // 🔥 NAYA LISTENER: Global Notification
+      this.socket.on("new_message_notification", (data) => {
+        if (!data || !data.message) return;
+
+        const msg = data.message;
+
+        // Tumhara apna message dobara popup nahi hona chahiye
+        // WARNING: Store ke andar apna user ID check karne ka logic add karna padega agar is_you hamesha false ata hai
+        if (msg.is_you) return;
+
+        // Custom HTML Toaster with Image, Name, Role and Text
+        Toast.fire({
+          html: `
+            <div style="display: flex; align-items: center; gap: 12px; font-family: sans-serif;">
+              <img src="${msg.sender_image || "/default-avatar.png"}" 
+                   style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e7eb;">
+              <div style="text-align: left; overflow: hidden;">
+                <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #1f2937; line-height: 1.2;">
+                  ${msg.sender_name} 
+                  <span style="font-size: 10px; font-weight: bold; color: #4f46e5; background: #e0e7ff; padding: 2px 6px; border-radius: 10px; margin-left: 4px;">
+                    ${msg.sender_role || "User"}
+                  </span>
+                </h4>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: #4b5563; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
+                  ${msg.text}
+                </p>
+              </div>
+            </div>
+          `,
+          background: "#ffffff",
+          customClass: {
+            popup: "rounded-xl shadow-lg border border-gray-100", // Tailwind classes agar configure ki hain
+          },
+        });
+        this.latestNotification = msg;
       });
     },
 

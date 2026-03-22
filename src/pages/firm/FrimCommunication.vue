@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-screen bg-gray-100 font-sans h-[83vh] overflow-hidden rounded-3xl shadow-lg border border-gray-200"
+    class="flex bg-gray-100 font-sans h-[33rem] overflow-hidden rounded-3xl shadow-lg border border-gray-200"
   >
     <aside
       class="w-80 bg-white border-r border-gray-200 hidden md:flex flex-col"
@@ -155,7 +155,7 @@
             v-model="newMessageText"
             type="text"
             placeholder="Type message..."
-            class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2.5 font-medium"
+            class="flex-1 bg-transparent border-none focus:ring-0 outline-none text-sm py-2.5 font-medium"
           />
           <button
             type="submit"
@@ -184,13 +184,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, onUnmounted } from "vue";
-import api from "../../services/auth.js";
+import { ref, onMounted, nextTick, onUnmounted, watch } from "vue";
+import api from "../../services/auth.js"; // Path adjust kar lena agar alag ho
 import { useSocketStore } from "../../stores/socket";
-import Swal from "sweetalert2"; // Notification ke liye
+import { useAuthStore } from "../../stores/auth"; // 🔥 Auth store chahiye user ID ke liye
+import Swal from "sweetalert2";
 
 // --- CONFIGURATION ---
 const socketStore = useSocketStore();
+const authStore = useAuthStore(); // Current user ID lene ke liye
 const chatRooms = ref([]);
 const messages = ref([]);
 const activeRoom = ref(null);
@@ -232,10 +234,10 @@ const selectRoom = async (room) => {
   messagesLoading.value = true;
   messages.value = []; // Clear old messages
 
-  // ✅ 1. Emit Join Channel Event
+  // ✅ Socket: Join Room
   socketStore.joinRoom(room.id);
 
-  // Unread count reset locally (UI trick)
+  // Unread count reset locally
   room.unread_messages_count = 0;
 
   try {
@@ -243,7 +245,7 @@ const selectRoom = async (room) => {
       `/api/chat/firm-chat/get-messages/?room_id=${room.id}`,
     );
     if (response.data.status) {
-      messages.value = response.data.data.messages.reverse(); // .reverse() agar zaroorat ho
+      messages.value = response.data.data.messages.reverse();
       scrollToBottom();
     }
   } catch (error) {
@@ -269,11 +271,9 @@ const handleSendMessage = async () => {
       "/api/chat/firm-chat/send-message/",
       payload,
     );
+
     if (response.data.status) {
-      // API se response aane par list me add karein
-      // Note: Agar socket 'new_message' khud bhej raha hai sender ko bhi,
-      // to yahan push karne ki zaroorat nahi hai (duplicate ho jayega).
-      // Filhal safety ke liye push kar rahe hain.
+      // ✅ Optimistic UI update: Message list me daal do
       messages.value.push(response.data.data);
       newMessageText.value = "";
       scrollToBottom();
@@ -283,101 +283,89 @@ const handleSendMessage = async () => {
     }
   } catch (error) {
     console.error("Send error:", error);
+    Toast.fire({ icon: "error", title: "Failed to send message" });
   } finally {
     isSending.value = false;
   }
 };
 
 // --- REAL-TIME SOCKET LOGIC ---
-// --- REAL-TIME SOCKET LOGIC ---
+
+// Named function banaya taake remove kar saken easily
+const handleIncomingMessage = (data) => {
+  // console.log("📩 New Message Received:", data);
+
+  const incomingRoomId = data.room_id || data.room;
+  const messageContent = data.message;
+  const currentUserId = authStore.user?.id; // Make sure authStore user ID de raha ho
+
+  // 🔥 1. Ignore my own messages (Duplicate prevention)
+  if (messageContent.sender === currentUserId) {
+    return;
+  }
+
+  // 🔥 2. Ignore if message already exists in list (Safety)
+  if (messages.value.some((m) => m.id === messageContent.id)) {
+    return;
+  }
+
+  
+  if (activeRoom.value && activeRoom.value.id === incomingRoomId) {
+    messages.value.push(messageContent);
+    scrollToBottom();
+  }
+ 
+  // else {
+  //   Toast.fire({
+  //     icon: "info",
+  //     title: `New message from ${messageContent.sender_name || "User"}`,
+  //     text: messageContent.text?.substring(0, 30) + "...",
+  //   });
+
+  //   // Sidebar count update
+  //   const roomIndex = chatRooms.value.findIndex((r) => r.id === incomingRoomId);
+  //   if (roomIndex !== -1) {
+  //     chatRooms.value[roomIndex].unread_messages_count += 1;
+  //   }
+  // }
+
+  // C. Sidebar Update (Move to top)
+  updateSidebarRoom(
+    incomingRoomId,
+    messageContent.text,
+    messageContent.created_at,
+  );
+};
+
 const setupSocketListeners = () => {
   if (!socketStore.socket) return;
 
-  socketStore.socket.on("new_message", (data) => {
-    console.log("📩 New Message Recieved:", data);
+  // Pehle purana listener hatao taake duplicate na ho
+  socketStore.socket.off("new_message", handleIncomingMessage);
 
-    const incomingRoomId = data.room_id || data.room;
-    const messageContent = data.message;
-
-    // 🔥 FIX: Check karein ke sender main khud to nahi hoon?
-    // Agar sender ID meri ID se match karti hai, to return kar jayen (Duplicate se bachne ke liye)
-    if (messageContent.sender === authStore.user?.id) {
-      return; 
-    }
-
-    // 🔥 FIX 2 (Safety): Agar message ID pehle se list mein hai to bhi ignore karein
-    if (messages.value.some(m => m.id === messageContent.id)) {
-      return;
-    }
-
-    // A. Agar user usi room me hai -> Append Message
-    if (activeRoom.value && activeRoom.value.id === incomingRoomId) {
-      messages.value.push(messageContent);
-      scrollToBottom();
-    } 
-    // B. Agar user kisi aur room me hai -> Show Notification
-    else {
-      Toast.fire({
-        icon: "info",
-        title: `New message from ${messageContent.sender_name || 'User'}`,
-        text: messageContent.text?.substring(0, 30) + "..."
-      });
-
-      // Sidebar count update
-      const roomIndex = chatRooms.value.findIndex(r => r.id === incomingRoomId);
-      if (roomIndex !== -1) {
-        chatRooms.value[roomIndex].unread_messages_count += 1;
-      }
-    }
-
-    // C. Sidebar Update (Room ko top par layein)
-    updateSidebarRoom(incomingRoomId, messageContent.text, messageContent.created_at);
-  });
+  // Naya listener lagao
+  socketStore.socket.on("new_message", handleIncomingMessage);
 };
 
 // Helper to update sidebar list
-const updateSidebarRoom = (roomId, lastMessage, time) => {
-  const index = chatRooms.value.findIndex((r) => r.id === roomId);
+const updateSidebarRoom = (roomId, lastMessage) => {
+  // Loose equality (==) use kiya hai taake String vs Number IDs ka masla na ho
+  const index = chatRooms.value.findIndex((r) => r.id == roomId);
 
   if (index !== -1) {
-    // Room exist karta hai
-    const updatedRoom = { ...chatRooms.value[index] };
-    updatedRoom.room_last_message = lastMessage;
-    // updatedRoom.updated_at = time; // Sorting ke liye
+    // 1. Room ko array se nikaal lo (ye original reactive object return karega)
+    const [room] = chatRooms.value.splice(index, 1);
 
-    // Remove from current position and add to top
-    chatRooms.value.splice(index, 1);
-    chatRooms.value.unshift(updatedRoom);
+    // 2. Last message update karo
+    room.room_last_message = lastMessage;
+
+    // 3. Top par wapis insert karo
+    chatRooms.value.unshift(room);
   } else {
-    // Agar naya room hai jo list me nahi tha, to puri list refresh karein
+    // Agar room list me exist hi nahi karta (New Chat), to api se refresh karo
     fetchChatRooms();
   }
 };
-
-// --- LIFECYCLE ---
-onMounted(() => {
-  fetchChatRooms();
-
-  // Socket listeners setup karein
-  if (socketStore.isConnected) {
-    setupSocketListeners();
-  } else {
-    // Agar socket abhi connect nahi hua to wait karein
-    const unwatch = socketStore.$subscribe((mutation, state) => {
-      if (state.isConnected) {
-        setupSocketListeners();
-        unwatch(); // Listener remove karein
-      }
-    });
-  }
-});
-
-onUnmounted(() => {
-  // Cleanup listeners to avoid duplicates
-  if (socketStore.socket) {
-    socketStore.socket.off("new_message");
-  }
-});
 
 // Helper: Scroll
 const scrollToBottom = () => {
@@ -387,4 +375,31 @@ const scrollToBottom = () => {
     }
   });
 };
+
+// --- LIFECYCLE ---
+onMounted(() => {
+  fetchChatRooms();
+
+  // Socket connect logic
+  socketStore.connect(); // Ab yeh safe hai, multiple connection nahi banayega
+
+  if (socketStore.isConnected) {
+    setupSocketListeners();
+  } else {
+    // Wait for connection
+    const unwatch = socketStore.$subscribe((mutation, state) => {
+      if (state.isConnected) {
+        setupSocketListeners();
+        unwatch();
+      }
+    });
+  }
+});
+
+onUnmounted(() => {
+  // ✅ Clean up listener specifically
+  if (socketStore.socket) {
+    socketStore.socket.off("new_message", handleIncomingMessage);
+  }
+});
 </script>

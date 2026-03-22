@@ -15,24 +15,24 @@
         </div>
 
         <nav class="flex flex-col p-4 space-y-3 text-sm">
-  <RouterLink
-    v-for="item in activeNavItems"
-    :key="item.name"
-    :to="`${basePath}/${item.to}`"
-    class="relative flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-800 transition"
-    :class="{ 'bg-gray-800': isActive(`${basePath}/${item.to}`) }"
-  >
-    <component :is="item.icon" class="w-4 h-4" />
-    <span class="flex-1">{{ item.name }}</span>
+          <RouterLink
+            v-for="item in activeNavItems"
+            :key="item.name"
+            :to="`${basePath}/${item.to}`"
+            class="relative flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-800 transition"
+            :class="{ 'bg-gray-800': isActive(`${basePath}/${item.to}`) }"
+          >
+            <component :is="item.icon" class="w-4 h-4" />
+            <span class="flex-1">{{ item.name }}</span>
 
-    <span
-      v-if="item.name === 'Communication' && item.count > 0"
-      class="flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-sm animate-pulse"
-    >
-      {{ item.count > 99 ? "99+" : item.count }}
-    </span>
-  </RouterLink>
-</nav>
+            <span
+              v-if="item.name === 'Communication' && item.count > 0"
+              class="flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-sm animate-pulse"
+            >
+              {{ item.count > 99 ? "99+" : item.count }}
+            </span>
+          </RouterLink>
+        </nav>
       </div>
 
       <div class="border-t border-gray-700 p-4 relative">
