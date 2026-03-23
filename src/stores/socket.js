@@ -20,9 +20,12 @@ export const useSocketStore = defineStore("socket", {
   state: () => ({
     socket: null,
     isConnected: false,
+    isConnecting: false,
     unreadCount: 0, // Global state for unread count
     heartbeatInterval: null,
+    uiSectionInterval: null,
     latestNotification: null,
+    currentUISection: null,
   }),
 
   actions: {
@@ -30,11 +33,17 @@ export const useSocketStore = defineStore("socket", {
       const token = Cookies.get("access_token");
 
       // Agar token nahi hai ya socket already connected hai to return ho jao
-      if (!token || (this.socket && this.socket.connected)) {
+      if (!token || this.isConnected || this.isConnecting) {
         return;
       }
 
       console.log("🔌 Initializing Socket Connection...");
+
+      this.isConnecting = true;
+
+      if (this.socket) {
+        this.socket.disconnect();
+      }
 
       // 1. Initialize Socket
       this.socket = io("wss://lawfirm-chatting.devssh.xyz", {
@@ -48,7 +57,7 @@ export const useSocketStore = defineStore("socket", {
       this.socket.on("connect", () => {
         console.log("✅ Socket Connected:", this.socket.id);
         this.isConnected = true;
-
+        this.isConnecting = false;
         // 3. Heartbeat Logic (Every 50 seconds)
         this.startHeartbeat();
       });
@@ -56,11 +65,13 @@ export const useSocketStore = defineStore("socket", {
       this.socket.on("disconnect", () => {
         console.warn("⚠️ Socket Disconnected");
         this.isConnected = false;
+        this.isConnecting = false;
         this.stopHeartbeat();
       });
 
       this.socket.on("connect_error", (err) => {
         console.error("❌ Socket Connection Error:", err.message);
+        this.isConnecting = false;
       });
 
       // 4. Listen for Unread Count Update
@@ -123,7 +134,15 @@ export const useSocketStore = defineStore("socket", {
         this.socket = null;
       }
       this.isConnected = false;
+      this.isConnecting = false;
       this.stopHeartbeat();
+
+      // Cleanup section polling
+      if (this.uiSectionInterval) {
+        clearInterval(this.uiSectionInterval);
+        this.uiSectionInterval = null;
+      }
+      this.currentUISection = null;
     },
 
     startHeartbeat() {
@@ -144,6 +163,40 @@ export const useSocketStore = defineStore("socket", {
       if (this.heartbeatInterval) {
         clearInterval(this.heartbeatInterval);
         this.heartbeatInterval = null;
+      }
+    },
+
+    updateUISection(sectionName) {
+      this.currentUISection = sectionName;
+
+      // 1. Purana interval hamesha clear karo taake overlapping timers start na hon (CRITICAL)
+      if (this.uiSectionInterval) {
+        clearInterval(this.uiSectionInterval);
+        this.uiSectionInterval = null;
+      }
+
+      // 2. Agar user kisi specific section mein aya hai aur socket zinda hai
+      if (sectionName && this.socket && this.isConnected) {
+        
+        // Pehli dafa foran bhej do taake delay na aye
+        this.socket.emit("enter_ui_section", {
+          section_name: sectionName,
+        });
+        console.log(`📍 UI Section Entered & Emitted: ${sectionName}`);
+
+        // Phir har 30 seconds ke baad ping karo (Time adjust kar lena backend ki requirement ke hisab se)
+        this.uiSectionInterval = setInterval(() => {
+          if (this.socket && this.isConnected) {
+            this.socket.emit("enter_ui_section", {
+              section_name: sectionName,
+            });
+            // console.log(`📍 UI Section Ping Sent: ${sectionName}`);
+          }
+        }, 30000); // 30,000 ms = 30 seconds
+
+      } else {
+        // Jab unmounted se sectionName = null aayega, interval already clear ho chuka hoga
+        console.log(`📍 UI Section Exited. Polling stopped.`);
       }
     },
 

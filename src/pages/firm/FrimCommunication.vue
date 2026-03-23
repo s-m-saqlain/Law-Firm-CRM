@@ -192,6 +192,7 @@ import Swal from "sweetalert2";
 
 // --- CONFIGURATION ---
 const socketStore = useSocketStore();
+let stopSectionWatcher = null;
 const authStore = useAuthStore(); // Current user ID lene ke liye
 const chatRooms = ref([]);
 const messages = ref([]);
@@ -201,6 +202,7 @@ const messagesLoading = ref(false);
 const scrollContainer = ref(null);
 const newMessageText = ref("");
 const isSending = ref(false);
+const EVENT_NAME = "new_message_notification";
 
 // Toast Configuration
 const Toast = Swal.mixin({
@@ -337,14 +339,44 @@ const handleIncomingMessage = (data) => {
   );
 };
 
+// 🔥 Naya Handler: Room ko top par laane ke liye
+const handleCommunicationTabUpdate = (updatedRoom) => {
+  if (!updatedRoom || !updatedRoom.id) return;
+
+  console.log("🔄 Sidebar Tab Update Received:", updatedRoom.id);
+
+  // 1. Find existing room index
+  const index = chatRooms.value.findIndex((room) => room.id === updatedRoom.id);
+
+  // 2. Active Room Synchronization (Edge Case Prevention)
+  // Agar user usi chat ke andar mojud hai, to unread count ko zabardasti 0 karna lazmi hai
+  if (activeRoom.value && activeRoom.value.id === updatedRoom.id) {
+    updatedRoom.unread_messages_count = 0;
+  }
+
+  if (index !== -1) {
+    // 3A. Room exist karta hai -> Usko purani jagah se nikalo (splice) aur top par dalo (unshift)
+    chatRooms.value.splice(index, 1);
+    chatRooms.value.unshift(updatedRoom);
+  } else {
+    // 3B. Naya room ban gaya hai jo UI mein nahi tha -> Direct top par dalo
+    chatRooms.value.unshift(updatedRoom);
+  }
+};
+
 const setupSocketListeners = () => {
   if (!socketStore.socket) return;
 
-  // Pehle purana listener hatao taake duplicate na ho
-  socketStore.socket.off("new_message", handleIncomingMessage);
+  const MSG_EVENT = "new_message_notification";
+  const TAB_EVENT = "communication_tab_update"; // Naya event
 
-  // Naya listener lagao
-  socketStore.socket.on("new_message", handleIncomingMessage);
+  // Pehle hamesha listeners clear karo memory leaks rokne ke liye
+  socketStore.socket.off(MSG_EVENT, handleIncomingMessage);
+  socketStore.socket.off(TAB_EVENT, handleCommunicationTabUpdate);
+
+  // Naye listeners attach karo
+  socketStore.socket.on(MSG_EVENT, handleIncomingMessage);
+  socketStore.socket.on(TAB_EVENT, handleCommunicationTabUpdate);
 };
 
 // Helper to update sidebar list
@@ -394,12 +426,23 @@ onMounted(() => {
       }
     });
   }
+
+  stopSectionWatcher = watch(
+  () => socketStore.isConnected,
+  (connected) => {
+    if (connected) {
+      socketStore.updateUISection("communication_hub");
+    }
+  },
+  { immediate: true }
+);
 });
 
 onUnmounted(() => {
-  // ✅ Clean up listener specifically
   if (socketStore.socket) {
-    socketStore.socket.off("new_message", handleIncomingMessage);
+    socketStore.socket.off("new_message_notification", handleIncomingMessage);
+    socketStore.socket.off("communication_tab_update", handleCommunicationTabUpdate);
   }
+  socketStore.updateUISection(null);
 });
 </script>
